@@ -54,11 +54,11 @@ class UiRenderTest {
         context.feedUrl = "https://example.test/feed"
         context.verifyKeyset = "{}"
         context.lastSyncAt = System.currentTimeMillis()
-        context.lastSyncStatus = "applied rev 2: 1 scheduled, 0 canceled, 0 missed"
+        context.lastSyncStatus = "applied rev 2: 1 scheduled, 0 canceled"
         val now = System.currentTimeMillis()
         val alarms = LinkedHashMap<String, FeedStore.StoredAlarm>()
         alarms["a1"] = FeedStore.StoredAlarm("a1", "wake up", now + 43_200_000, 9, "scheduled")
-        alarms["a2"] = FeedStore.StoredAlarm("a2", "old one", now - 3_600_000, 9, "missed")
+        alarms["a2"] = FeedStore.StoredAlarm("a2", "old one", now - 3_600_000, 9, "fired")
         FeedStore.saveAlarms(context, alarms)
         val activity = Robolectric.buildActivity(MainActivity::class.java).create().resume().visible().get()
         val out = File("build/outputs/ui/main-paired.png")

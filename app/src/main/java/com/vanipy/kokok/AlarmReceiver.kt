@@ -19,7 +19,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val stored = FeedStore.alarms(context)
         val alarm = stored[id] ?: return
-        if (alarm.status != "scheduled") return // fired/missed/dismissed never re-ring
+        if (alarm.status != "scheduled") return // fired/dismissed/canceled never re-ring
         stored[id] = alarm.copy(status = "fired")
         FeedStore.saveAlarms(context, stored)
 

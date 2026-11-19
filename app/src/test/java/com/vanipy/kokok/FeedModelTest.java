@@ -35,25 +35,22 @@ public class FeedModelTest {
         FeedModel.Plan p = FeedModel.apply(feed(1, alarm("a", now + 60_000)), 0, stored, now);
         assertEquals(1, p.toSchedule.size());
         assertEquals(0, p.toRingNow.size());
-        assertEquals(0, p.toMarkMissed.size());
     }
 
     @Test
-    public void ringsImmediatelyWithinLateGrace() throws Exception {
+    public void ringsImmediatelyWithinTenMinutes() throws Exception {
         long now = 1_000_000L;
         Map<String, FeedStore.StoredAlarm> stored = new HashMap<>();
         FeedModel.Plan p = FeedModel.apply(feed(1, alarm("a", now - 5 * 60_000)), 0, stored, now);
         assertEquals(1, p.toRingNow.size());
-        assertEquals(0, p.toMarkMissed.size());
     }
 
     @Test
-    public void marksMissedBeyondGrace() throws Exception {
+    public void ringsImmediatelyNoMatterHowLate() throws Exception {
         long now = 1_000_000L;
         Map<String, FeedStore.StoredAlarm> stored = new HashMap<>();
         FeedModel.Plan p = FeedModel.apply(feed(1, alarm("a", now - 61 * 60_000)), 0, stored, now);
-        assertEquals(1, p.toMarkMissed.size());
-        assertEquals(0, p.toRingNow.size());
+        assertEquals(1, p.toRingNow.size()); // user decision 2026-11-19: late alarms ring
     }
 
     @Test

@@ -55,7 +55,6 @@ public final class FeedModel {
         public final List<Alarm> toSchedule = new ArrayList<>();
         public final List<Alarm> toRingNow = new ArrayList<>();
         public final List<String> toCancel = new ArrayList<>();
-        public final List<Alarm> toMarkMissed = new ArrayList<>();
     }
 
     /**
@@ -63,7 +62,7 @@ public final class FeedModel {
      * - rev must be strictly greater than lastAppliedRev (replay/rollback rejected)
      * - an alarm absent from the feed is canceled (unless locally created)
      * - an alarm already fired/missed/dismissed never rings again
-     * - late within LATE_GRACE_MILLIS rings immediately, later than that is marked missed
+     * - a past-due alarm rings immediately no matter how late (user decision 2026-11-19)
      */
     public static Plan apply(Feed feed, long lastAppliedRev, Map<String, FeedStore.StoredAlarm> stored, long nowMillis) {
         if (feed.rev <= lastAppliedRev) {
@@ -77,10 +76,8 @@ public final class FeedModel {
             }
             if (a.atMillis > nowMillis) {
                 p.toSchedule.add(a);
-            } else if (nowMillis - a.atMillis <= FeedFormat.LATE_GRACE_MILLIS) {
-                p.toRingNow.add(a);
             } else {
-                p.toMarkMissed.add(a);
+                p.toRingNow.add(a); // late alarms ring, however late (user decision 2026-11-19)
             }
         }
         java.util.Set<String> inFeed = new java.util.HashSet<>();

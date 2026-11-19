@@ -100,11 +100,9 @@ class MainActivity : Activity() {
             val mark = when (a.status) {
                 "scheduled" -> "\u23F0"
                 "fired" -> "\u2713 fired"
-                "missed" -> "\u2717 missed"
                 else -> a.status
             }
             val color = when (a.status) {
-                "missed" -> Color.rgb(180, 30, 30)
                 "fired", "dismissed" -> Color.GRAY
                 else -> Color.BLACK
             }

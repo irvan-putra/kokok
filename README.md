@@ -33,14 +33,13 @@ plus an optional message you choose to send yourself.
 - Any signature or decrypt failure drops the whole envelope.
 - An alarm absent from the feed is canceled. On-device test alarms are never
   feed-managed.
-- A fired, missed or dismissed alarm never rings again, even if the feed still lists
+- A fired or dismissed alarm never rings again, even if the feed still lists
   it. Repeating alarms use a fresh id per occurrence (id + date).
 - A ringing alarm keeps ringing until you dismiss or snooze it; there is no
   auto-silence timeout (user-chosen behavior, 2026-11-19).
-- An alarm found late: if it is at most 10 minutes late it rings immediately;
-  later than that it is marked `missed`. (AOSP DeskClock instead posts a "missed
-  alarm" notification without ringing; the 10-minute immediate ring is a deliberate
-  deviation and an open product choice — see `FeedFormat.LATE_GRACE_MILLIS`.)
+- An alarm found late rings immediately, no matter how late (user-chosen behavior,
+  2026-11-19). AOSP DeskClock instead posts a "missed alarm" notification without
+  ringing; kokok deliberately rings.
 - Reboot before first unlock: stored state lives in device-protected storage and the
   boot receiver handles both `LOCKED_BOOT_COMPLETED` and `BOOT_COMPLETED`, so
   rescheduling works even on a still-locked phone. Time/timezone changes re-evaluate

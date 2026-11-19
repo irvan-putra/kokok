@@ -15,7 +15,7 @@ object FeedStore {
         val label: String,
         val atMillis: Long,
         val snooze: Int,
-        val status: String, // scheduled | fired | missed | dismissed | canceled
+        val status: String, // scheduled | fired | dismissed | canceled
         val local: Boolean = false, // created on-device (test alarm), not feed-managed
     )
 

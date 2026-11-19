@@ -31,7 +31,7 @@ object Sync {
     }
 
     /** Result counts for user-visible status. */
-    data class Outcome(val rev: Int, val scheduled: Int, val canceled: Int, val missed: Int, val rangNow: Int)
+    data class Outcome(val rev: Int, val scheduled: Int, val canceled: Int, val rangNow: Int)
 
     fun fetchAndApply(context: Context): Outcome {
         val url = context.feedUrl
@@ -61,9 +61,6 @@ object Sync {
             stored[a.id] = FeedStore.StoredAlarm(a.id, a.label, a.atMillis, a.snooze, "scheduled")
             Scheduler.schedule(context, a)
         }
-        for (a in plan.toMarkMissed) {
-            stored[a.id] = FeedStore.StoredAlarm(a.id, a.label, a.atMillis, a.snooze, "missed")
-        }
         for (a in plan.toRingNow) {
             stored[a.id] = FeedStore.StoredAlarm(a.id, a.label, a.atMillis, a.snooze, "scheduled")
             Scheduler.schedule(context, FeedModel.Alarm(a.id, a.label, now + 1_000, a.snooze))
@@ -71,9 +68,9 @@ object Sync {
         FeedStore.saveAlarms(context, stored)
         context.lastAppliedRev = feed.rev.toLong()
         context.lastSyncAt = now
-        val outcome = Outcome(feed.rev, plan.toSchedule.size, plan.toCancel.size, plan.toMarkMissed.size, plan.toRingNow.size)
+        val outcome = Outcome(feed.rev, plan.toSchedule.size, plan.toCancel.size, plan.toRingNow.size)
         context.lastSyncStatus = "applied rev ${outcome.rev}: ${outcome.scheduled} scheduled, " +
-            "${outcome.canceled} canceled, ${outcome.missed} missed" +
+            "${outcome.canceled} canceled" +
             if (outcome.rangNow > 0) ", ${outcome.rangNow} rang immediately (late)" else ""
         return outcome
     }

@@ -84,7 +84,7 @@ class ReceiverFlowTest {
     }
 
     @Test
-    fun rebootRescheduleSkipsTerminalAndLateMarksMissed() {
+    fun rebootRescheduleRingsLateAlarms() {
         val now = System.currentTimeMillis()
         val stored = FeedStore.alarms(context)
         stored["ok"] = FeedStore.StoredAlarm("ok", "wake", now + 3_600_000, 9, "scheduled")
@@ -92,33 +92,32 @@ class ReceiverFlowTest {
         stored["old"] = FeedStore.StoredAlarm("old", "old", now - 3_600_000, 9, "scheduled")
         stored["done"] = FeedStore.StoredAlarm("done", "done", now - 3_600_000, 9, "dismissed")
 
-        // BootReceiver logic: future -> reschedule, within grace -> ring now, older -> missed, terminal untouched
+        // BootReceiver logic: future -> reschedule, past-due -> ring now (never missed),
+        // terminal untouched
+        val plan = mutableListOf<String>()
         for ((id, alarm) in stored.toMap()) {
             if (alarm.status != "scheduled") continue
-            when {
-                alarm.atMillis > now -> {}
-                now - alarm.atMillis <= FeedFormat.LATE_GRACE_MILLIS -> {}
-                else -> stored[id] = alarm.copy(status = "missed")
-            }
+            if (alarm.atMillis <= now) plan.add(id) // would be scheduled to ring now
         }
+        assertEquals(setOf("late", "old"), plan.toSet())
         FeedStore.saveAlarms(context, stored)
         val after = FeedStore.alarms(context)
         assertEquals("scheduled", after["ok"]!!.status)
         assertEquals("scheduled", after["late"]!!.status)
-        assertEquals("missed", after["old"]!!.status)
+        assertEquals("scheduled", after["old"]!!.status)
         assertEquals("dismissed", after["done"]!!.status)
     }
 
     @Test
     fun timeChangeUsesFreshClockNotStoredTimes() {
         // TIME_SET / TIMEZONE_CHANGED path re-evaluates against currentTimeMillis,
-        // so a clock moved forward past an alarm marks it instead of re-ringing
+        // so a clock moved forward past an alarm rings it immediately (late alarms
+        // always ring, user decision 2026-11-19)
         val stored = FeedStore.alarms(context)
         val alarmAt = System.currentTimeMillis() - 30 * 60_000
         stored["a"] = FeedStore.StoredAlarm("a", "wake", alarmAt, 9, "scheduled")
         val nowAfterClockJump = System.currentTimeMillis()
         val plan = FeedModel.apply(FeedModel.parse(feedJson(1, "a" to alarmAt)), 0, stored, nowAfterClockJump)
-        assertEquals(1, plan.toMarkMissed.size)
-        assertEquals(0, plan.toRingNow.size)
+        assertEquals(1, plan.toRingNow.size)
     }
 }
