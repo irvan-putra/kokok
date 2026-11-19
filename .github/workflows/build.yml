@@ -38,6 +38,9 @@ jobs:
           path: app/build/outputs/ui/*.png
 
   emulator:
+    # Phone-first experimental release requested by the owner. Existing runtime
+    # evidence remains separate; do not delay release with another emulator round.
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.release_version == ''
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -106,7 +109,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [test, emulator]  # Release only after combined unit and runtime validation.
+    needs: test  # Owner requested phone-first experimental validation, not another emulator round.
     permissions:
       contents: write  # create prerelease + upload APK asset
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_version != ''
@@ -149,4 +152,9 @@ jobs:
           tag_name: v${{ env.VERSION_NAME }}
           prerelease: true
           files: kokok-v${{ env.VERSION_NAME }}.apk
+          body: |
+            Experimental phone-first build. Remote alarm delivery is not yet verified.
+            Adds reviewed pairing import, strict publisher key id checks, adaptive/themed version badges, and a visible user-controlled alarm-volume panel.
+            Keep a backup alarm until the on-phone alarm list and actual ringing are verified.
+            Install over the existing app without uninstalling or clearing data.
           body_path: sha256.txt
