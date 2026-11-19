@@ -19,7 +19,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install tink
+      - run: pip install tink pillow==12.3.0
+      - run: python tools/badge_icon.py --check
       - run: python -m unittest discover -s tools -p 'test_feed_write.py' -v
       - run: gradle testDebugUnitTest --no-daemon --max-workers=1 --refresh-dependencies
       - uses: actions/upload-artifact@v4

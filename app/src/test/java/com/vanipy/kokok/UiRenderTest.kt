@@ -105,4 +105,57 @@ class UiRenderTest {
         dialog.dismiss()
         activity.finish()
     }
+    @Test
+    fun alarmVolumeControlDoesNotChangeUserVolume() {
+        val context = RuntimeEnvironment.getApplication()
+        val audio = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+        audio.setStreamVolume(android.media.AudioManager.STREAM_ALARM, 0, 0)
+        val activity = Robolectric.buildActivity(MainActivity::class.java).create().resume().visible().get()
+        org.junit.Assert.assertEquals(android.media.AudioManager.STREAM_ALARM, activity.volumeControlStream)
+        org.junit.Assert.assertEquals(0, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))
+        fun find(view: View): android.widget.Button? {
+            if (view is android.widget.Button && view.text.toString() == "adjust alarm volume") return view
+            if (view is android.view.ViewGroup) for (n in 0 until view.childCount) {
+                find(view.getChildAt(n))?.let { return it }
+            }
+            return null
+        }
+        val button = find(activity.findViewById(android.R.id.content))!!
+        button.performClick()
+        org.junit.Assert.assertEquals(0, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))
+        audio.setStreamVolume(android.media.AudioManager.STREAM_ALARM, 3, 0)
+        activity.onWindowFocusChanged(true)
+        val root = (activity.findViewById<android.view.ViewGroup>(android.R.id.content).getChildAt(0) as android.widget.ScrollView).getChildAt(0)
+        render(root, File("build/outputs/ui/alarm-volume-main.png"), 960)
+        org.junit.Assert.assertEquals(3, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))
+        activity.finish()
+    }
+
+    @Test
+    fun manifestLauncherAndThemedMaskRender() {
+        val context = RuntimeEnvironment.getApplication()
+        val icon = context.packageManager.getApplicationIcon(context.packageName)
+        assertTrue(icon is android.graphics.drawable.AdaptiveIconDrawable)
+        val adaptive = icon as android.graphics.drawable.AdaptiveIconDrawable
+        val mono = adaptive.monochrome
+        assertTrue(mono != null)
+        val themed = android.graphics.drawable.AdaptiveIconDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(225, 235, 220)), mono!!)
+        // Themed icons tint the entire alpha silhouette, not its RGB colours.
+        mono.setTint(android.graphics.Color.rgb(25, 55, 25))
+        val legacy = android.graphics.drawable.BitmapDrawable(context.resources,
+            android.graphics.BitmapFactory.decodeFile("src/main/res/mipmap-xxxhdpi/ic_launcher.png"))
+        for ((name, drawable) in listOf("adaptive" to adaptive, "themed" to themed, "legacy" to legacy)) {
+            for (size in listOf(48, 96, 192)) {
+                val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+                drawable.setBounds(0, 0, size, size)
+                drawable.draw(Canvas(bmp))
+                val out = File("build/outputs/ui/launcher-$name-$size.png")
+                out.parentFile?.mkdirs()
+                FileOutputStream(out).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                assertTrue(out.length() > 100)
+            }
+        }
+    }
+
 }

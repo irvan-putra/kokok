@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -33,10 +34,13 @@ import java.util.Locale
 class MainActivity : Activity() {
 
     private lateinit var root: LinearLayout
+    private var alarmVolumeLabel: TextView? = null
     private val df = SimpleDateFormat("EEE d MMM, HH:mm:ss", Locale.US)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Physical volume keys target alarm volume only while this screen is active.
+        volumeControlStream = AudioManager.STREAM_ALARM
         val scroll = ScrollView(this)
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -105,11 +109,35 @@ class MainActivity : Activity() {
             }.show()
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) refreshAlarmVolume()
+    }
+
+    private fun refreshAlarmVolume() {
+        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val current = audio.getStreamVolume(AudioManager.STREAM_ALARM)
+        val max = audio.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+        alarmVolumeLabel?.text = "alarm volume: $current / $max" +
+            if (current == 0) " (silent)" else ""
+    }
+
     private fun render() {
         root.removeAllViews()
 
         root.addView(text("kokok ${BuildConfig.VERSION_NAME}", 28f, Color.rgb(255, 140, 0), bold = true))
         root.addView(text("alarms set for you from the feed; they ring fully offline once applied.", 16f, Color.DKGRAY))
+
+        alarmVolumeLabel = text("", 16f, Color.DKGRAY)
+        root.addView(alarmVolumeLabel)
+        refreshAlarmVolume()
+        root.addView(button("adjust alarm volume") {
+            // ADJUST_SAME opens Android's alarm-volume panel without changing volume.
+            val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audio.adjustStreamVolume(AudioManager.STREAM_ALARM,
+                AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI)
+        })
+        root.addView(text("Uses phone alarm volume, not media volume. Tap to adjust in Android's volume panel. Kokok never raises it automatically.", 14f, Color.DKGRAY))
 
         root.addView(text("setup", 20f, Color.BLACK, bold = true, topPad = 32))
         root.addView(text("android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})", 16f, Color.DKGRAY))
