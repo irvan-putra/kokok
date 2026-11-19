@@ -124,7 +124,16 @@ class UiRenderTest {
         button.performClick()
         org.junit.Assert.assertEquals(0, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))
         audio.setStreamVolume(android.media.AudioManager.STREAM_ALARM, 3, 0)
-        activity.onWindowFocusChanged(true)
+        context.contentResolver.notifyChange(android.provider.Settings.System.CONTENT_URI, null)
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        fun label(view: View): android.widget.TextView? {
+            if (view is android.widget.TextView && view.text.toString().startsWith("alarm volume:")) return view
+            if (view is android.view.ViewGroup) for (n in 0 until view.childCount) {
+                label(view.getChildAt(n))?.let { return it }
+            }
+            return null
+        }
+        assertTrue(label(activity.findViewById(android.R.id.content))!!.text.toString().startsWith("alarm volume: 3 /"))
         val root = (activity.findViewById<android.view.ViewGroup>(android.R.id.content).getChildAt(0) as android.widget.ScrollView).getChildAt(0)
         render(root, File("build/outputs/ui/alarm-volume-main.png"), 960)
         org.junit.Assert.assertEquals(3, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))

@@ -15,7 +15,10 @@ android {
         versionName = "0.1.1"
     }
 
-    testOptions { unitTests.all { it.maxHeapSize = "640m"; it.maxParallelForks = 1 } }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all { it.maxHeapSize = "640m"; it.maxParallelForks = 1 }
+    }
 
     buildFeatures {
         buildConfig = true

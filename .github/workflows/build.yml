@@ -20,6 +20,11 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pillow==12.3.0
+      - run: python tools/badge_icon.py --check
       - name: unit tests
         run: gradle testDebugUnitTest --no-daemon
       - name: upload rendered UI screenshots
@@ -96,12 +101,18 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pillow==12.3.0
       - name: decode signing key
         run: |
           echo "${{ secrets.KOKOK_SIGNING_KEY_B64 }}" | base64 -d > /tmp/release.keystore
       - name: build signed release APK
         run: |
           sed -i "s/versionName = \"[^\"]*\"/versionName = \"$VERSION_NAME\"/" app/build.gradle.kts
+          python scripts/make_icons.py
+          python tools/badge_icon.py --check
           gradle assembleRelease --no-daemon \
             -Pandroid.injected.signing.store.file=/tmp/release.keystore \
             -Pandroid.injected.signing.store.password="${{ secrets.KOKOK_STORE_PASSWORD }}" \

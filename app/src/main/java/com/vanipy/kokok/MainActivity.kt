@@ -35,6 +35,10 @@ class MainActivity : Activity() {
 
     private lateinit var root: LinearLayout
     private var alarmVolumeLabel: TextView? = null
+    private val volumeObserver = object : android.database.ContentObserver(
+        android.os.Handler(android.os.Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) { refreshAlarmVolume() }
+    }
     private val df = SimpleDateFormat("EEE d MMM, HH:mm:ss", Locale.US)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +58,14 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         render()
+        // Android's volume panel need not take window focus. Observe settings so
+        // the visible level stays current while the user changes it there.
+        contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, volumeObserver)
+    }
+
+    override fun onPause() {
+        contentResolver.unregisterContentObserver(volumeObserver)
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent) {
