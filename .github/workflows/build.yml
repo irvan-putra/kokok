@@ -52,7 +52,6 @@ jobs:
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             # --- synthetic feed: keys, envelopes, host server ---
             mkdir feed && cd feed
-            python3 tools/feed_write.py 2>/dev/null || true
             python3 ../tools/feed_write.py gen-sign --private sign-priv.json --public sign-pub.json
             python3 ../tools/feed_write.py gen-app --private app-priv.json --public app-pub.json
             NOW=$(python3 -c 'import time; print(int(time.time()*1000))')
