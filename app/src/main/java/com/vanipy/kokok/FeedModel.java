@@ -72,7 +72,7 @@ public final class FeedModel {
         Plan p = new Plan();
         for (Alarm a : feed.alarms) {
             FeedStore.StoredAlarm prev = stored.get(a.id);
-            if (prev != null && ("fired".equals(prev.status) || "missed".equals(prev.status) || "dismissed".equals(prev.status))) {
+            if (prev != null && ("fired".equals(prev.getStatus()) || "missed".equals(prev.getStatus()) || "dismissed".equals(prev.getStatus()))) {
                 continue; // terminal state, never re-ring
             }
             if (a.atMillis > nowMillis) {
@@ -86,8 +86,8 @@ public final class FeedModel {
         java.util.Set<String> inFeed = new java.util.HashSet<>();
         for (Alarm a : feed.alarms) inFeed.add(a.id);
         for (Map.Entry<String, FeedStore.StoredAlarm> e : stored.entrySet()) {
-            if (!e.getValue().local && !inFeed.contains(e.getKey())
-                    && "scheduled".equals(e.getValue().status)) {
+            if (!e.getValue().getLocal() && !inFeed.contains(e.getKey())
+                    && "scheduled".equals(e.getValue().getStatus())) {
                 p.toCancel.add(e.getKey());
             }
         }

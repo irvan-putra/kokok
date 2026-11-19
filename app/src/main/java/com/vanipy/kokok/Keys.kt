@@ -12,6 +12,7 @@ import com.google.crypto.tink.proto.EcPointFormat
 import com.google.crypto.tink.proto.HashType
 import com.google.crypto.tink.proto.KeyTemplate
 import com.google.crypto.tink.proto.OutputPrefixType
+import com.vanipy.kokok.FeedStore.appKeyset
 import java.io.ByteArrayOutputStream
 
 /**
@@ -34,7 +35,8 @@ object Keys {
             HashType.SHA256,
             EcPointFormat.COMPRESSED,
             dem,
-            FeedFormat.CONTEXT_INFO,
+            OutputPrefixType.TINK,
+            ByteArray(0),
         )
     }
 

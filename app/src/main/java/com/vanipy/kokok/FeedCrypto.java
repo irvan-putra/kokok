@@ -28,13 +28,13 @@ public final class FeedCrypto {
         }
     }
 
-    public static KeysetHandle readJsonKeyset(String json) throws GeneralSecurityException {
+    public static KeysetHandle readJsonKeyset(String json) throws GeneralSecurityException, java.io.IOException {
         return CleartextKeysetHandle.read(JsonKeysetReader.withString(json));
     }
 
     /** Returns the decrypted+verified feed JSON string, or throws. */
     public static String openEnvelope(String envelopeJson, String verifyKeysetJson, KeysetHandle appPrivate)
-            throws GeneralSecurityException, org.json.JSONException {
+            throws GeneralSecurityException, java.io.IOException, org.json.JSONException {
         JSONObject env = new JSONObject(envelopeJson);
         if (env.getInt("v") != FeedFormat.ENVELOPE_VERSION) {
             throw new GeneralSecurityException("unsupported envelope version");
