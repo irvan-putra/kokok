@@ -152,12 +152,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION_NAME }}
+          target_commitish: ${{ github.sha }}
           prerelease: true
           files: kokok-v${{ env.VERSION_NAME }}.apk
           body: |
-            Experimental phone-first build. Remote alarm delivery is not yet verified.
-            Adds a local alarm-sound preview and device-sound chooser. The phone default remains in use until you choose another sound; no system-volume change.
-            Existing alarm tone is unchanged. Device-specific loudness and remote alarm delivery remain unverified.
-            Keep a backup alarm until the on-phone alarm list and actual ringing are verified.
-            Install over the existing app without uninstalling or clearing data.
+            Experimental phone-first build with a local alarm-sound preview and device-sound chooser.
+            Default sound remains until an explicit choice; no system-volume change.
+            Installed-device chooser, chosen-tone playback, loudness and overnight reliability require verification.
+            Keep a backup alarm. Install over the existing app without uninstalling or clearing data.
           append_body: true
