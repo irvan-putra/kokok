@@ -83,8 +83,17 @@ sleep 5
 adb shell dumpsys media.player > media-player-2.txt 2>/dev/null || true
 adb shell dumpsys notification | grep -B2 -A4 com.vanipy.kokok || true
 
-# snooze via button: ringing stops, alarm rescheduled +1 min
-python3 tools/uitap.py "snooze 1 min"
+# ring controls live in the SystemUI window when the full-screen intent
+# degrades to a heads-up notification (unlocked emulator): expand the shade
+# and tap the notification action label; evidence dump on failure
+tap_ring_action() {
+  adb shell cmd statusbar expand-notifications
+  sleep 2
+  python3 tools/uitap.py "$1"
+}
+
+# snooze via notification action: ringing stops, alarm rescheduled +1 min
+tap_ring_action "snooze"
 sleep 3
 adb shell dumpsys activity services com.vanipy.kokok > after-snooze-services.txt || true
 if grep -q AlarmRingService after-snooze-services.txt; then echo "FAIL: ring service still running after snooze"; exit 1; else echo "snooze stopped the ring service"; fi
@@ -93,8 +102,8 @@ adb exec-out screencap -p > ringing-after-snooze.png
 adb shell dumpsys activity services com.vanipy.kokok > rering-services.txt || true
 grep -q AlarmRingService rering-services.txt || { echo "FAIL: snoozed alarm did not re-ring (service absent)"; exit 1; }
 
-# dismiss the snoozed ring
-python3 tools/uitap.py "dismiss"
+# dismiss the snoozed ring via the notification action
+tap_ring_action "dismiss"
 sleep 3
 adb shell dumpsys activity services com.vanipy.kokok > after-dismiss-services.txt || true
 if grep -q AlarmRingService after-dismiss-services.txt; then echo "FAIL: ring service still running after dismiss"; exit 1; else echo "dismiss stopped the ring service"; fi
