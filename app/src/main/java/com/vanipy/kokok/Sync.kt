@@ -33,6 +33,7 @@ object Sync {
     /** Result counts for user-visible status. */
     data class Outcome(val rev: Int, val scheduled: Int, val canceled: Int, val rangNow: Int)
 
+    @Synchronized
     fun fetchAndApply(context: Context): Outcome {
         val url = context.feedUrl
         // https only; debug builds also accept the emulator host loopback for synthetic tests

@@ -39,6 +39,16 @@ public final class FeedCrypto {
         if (env.getInt("v") != FeedFormat.ENVELOPE_VERSION) {
             throw new GeneralSecurityException("unsupported envelope version");
         }
+        try {
+            String expectedKid = PairingConfig.publicKeyId(verifyKeysetJson);
+            if (!expectedKid.equals(env.getString("kid"))) {
+                throw new GeneralSecurityException("publisher key id mismatch; review pairing configuration");
+            }
+        } catch (GeneralSecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new GeneralSecurityException("invalid publisher verification keyset or key id", e);
+        }
         String encB64 = env.getString("enc");
         byte[] sig = Base64.getDecoder().decode(env.getString("sig"));
         byte[] enc = Base64.getDecoder().decode(encB64);

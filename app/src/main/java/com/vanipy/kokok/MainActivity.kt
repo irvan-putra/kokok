@@ -1,5 +1,9 @@
 package com.vanipy.kokok
 
+import android.app.AlertDialog
+import android.widget.EditText
+import com.vanipy.kokok.FeedStore.verifyKeyset
+import com.vanipy.kokok.FeedStore.lastAppliedRev
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.NotificationManager
@@ -40,11 +44,67 @@ class MainActivity : Activity() {
         }
         scroll.addView(root)
         setContentView(scroll)
+        handlePairingShare(intent)
     }
 
     override fun onResume() {
         super.onResume()
         render()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handlePairingShare(intent)
+    }
+
+    private fun handlePairingShare(incoming: Intent?) {
+        if (incoming?.action == Intent.ACTION_SEND && incoming.type == "text/plain") {
+            val value = incoming.getStringExtra(Intent.EXTRA_TEXT) ?: return
+            incoming.removeExtra(Intent.EXTRA_TEXT)
+            reviewPairing(value)
+        }
+    }
+
+    private fun reviewPairing(raw: String) {
+        val config = try { PairingConfig.parse(raw) } catch (e: Exception) {
+            AlertDialog.Builder(this).setTitle("Pairing not imported")
+                .setMessage(e.message ?: "Invalid configuration")
+                .setPositiveButton("OK", null).show()
+            return
+        }
+        val replacing = feedUrl.isNotEmpty()
+        AlertDialog.Builder(this)
+            .setTitle(if (replacing) "Replace alarm publisher?" else "Pair alarm publisher?")
+            .setMessage("Only import configuration from your trusted assistant.\n\n" +
+                "Host: ${Uri.parse(config.feedUrl).host}\nPublisher key id: ${config.publisherKeyId}\n\n" +
+                "The next verified feed can set alarms and cancel remote alarms it omits. " +
+                "Overdue alarms ring immediately. Local test alarms are not feed-managed.\n\n" +
+                "Existing alarms, phone key and replay protection are kept. The new publisher must " +
+                "use a revision above $lastAppliedRev. Import is not proof that an alarm is set.\n\n" +
+                "Phone decryption key is held in app-private device-protected storage, " +
+                "not hardware-backed key storage. Automatic phone-to-assistant receipts are not available.")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Trust publisher and sync") { _, _ ->
+                Thread {
+                    synchronized(Sync) {
+                        // Keep revision, phone key and alarms. Never clear them on re-pair.
+                        val ok = getSharedPreferences("feed", Context.MODE_PRIVATE).edit()
+                            .putString("feedUrl", config.feedUrl)
+                            .putString("verifyKeyset", config.verifyKeyset).commit()
+                        if (!ok) {
+                            runOnUiThread { Toast.makeText(this, "Pairing could not be saved", Toast.LENGTH_LONG).show() }
+                            return@Thread
+                        }
+                        Sync.scheduleJob(this)
+                        try { Sync.fetchAndApply(this) }
+                        catch (e: Exception) {
+                            with(FeedStore) { lastSyncStatus = "paired; first sync failed: ${e.javaClass.simpleName}" }
+                        }
+                    }
+                    runOnUiThread { render() }
+                }.start()
+            }.show()
     }
 
     private fun render() {
@@ -137,19 +197,27 @@ class MainActivity : Activity() {
         })
 
         root.addView(text("pairing", 20f, Color.BLACK, bold = true, topPad = 32))
-        if (feedUrl.isEmpty()) {
-            root.addView(text("not paired. your assistant sets up the feed; after that this shows the phone's public key to hand over once.", 16f, Color.DKGRAY))
-            root.addView(button("show pairing key") {
-                val pub = Keys.publicKeysetJson(this)
-                val send = Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, pub)
-                }
-                startActivity(Intent.createChooser(send, "pairing key"))
-            })
-        } else {
-            root.addView(text("paired.", 16f, Color.rgb(0, 120, 60)))
+        root.addView(text(if (feedUrl.isEmpty()) "not paired" else "publisher configured; check last sync and alarm list above", 16f, Color.DKGRAY))
+        root.addView(text("Paste the non-secret pairing JSON from your trusted assistant, or share it to kokok. No password or private key belongs here.", 16f, Color.DKGRAY))
+        val pairingInput = EditText(this).apply {
+            hint = "pairing JSON (feedUrl + verifyKeyset)"
+            minLines = 3
+            maxLines = 6
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            filters = arrayOf(android.text.InputFilter.LengthFilter(65536))
         }
+        root.addView(pairingInput)
+        root.addView(button(if (feedUrl.isEmpty()) "review pairing" else "review replacement pairing") {
+            reviewPairing(pairingInput.text.toString())
+        })
+        root.addView(button("share phone public pairing key") {
+            val pub = Keys.publicKeysetJson(this)
+            val send = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, pub)
+            }
+            startActivity(Intent.createChooser(send, "phone public pairing key"))
+        })
 
         root.addView(button("check for update", topPad = 24) {
             Thread {
