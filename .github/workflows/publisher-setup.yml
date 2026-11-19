@@ -1,0 +1,22 @@
+name: publisher custody synthetic check
+on:
+  push:
+    branches: [publisher/setup-test]
+permissions:
+  contents: read
+jobs:
+  synthetic-custody-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install signing library
+        run: pip install tink==1.13.0
+      - name: Validate isolated signer failure behavior
+        run: python -m unittest discover -s tools -p 'test_sign_ciphertext.py' -v
+      - name: Verify provisioned publisher using synthetic ciphertext
+        env:
+          KOKOK_FEED_SIGNING_KEY_B64: ${{ secrets.KOKOK_FEED_SIGNING_KEY_B64 }}
+        run: python tools/publisher_selftest.py
