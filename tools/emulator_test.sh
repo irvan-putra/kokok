@@ -71,16 +71,26 @@ adb exec-out screencap -p > ringing.png
 # runtime evidence, not just pixels: the foreground service must be running
 adb shell dumpsys activity services com.vanipy.kokok > ring-services.txt || true
 grep -q AlarmRingService ring-services.txt || { echo "FAIL: AlarmRingService not running while ringing"; exit 1; }
-adb shell dumpsys media.player > media-player.txt 2>/dev/null || true
+adb shell dumpsys media.player > media-player-1.txt 2>/dev/null || true
+sleep 5
+adb shell dumpsys media.player > media-player-2.txt 2>/dev/null || true
 adb shell dumpsys notification | grep -B2 -A4 com.vanipy.kokok || true
 
 # snooze via button: ringing stops, alarm rescheduled +1 min
 python3 tools/uitap.py "snooze 1 min"
+sleep 3
+adb shell dumpsys activity services com.vanipy.kokok > after-snooze-services.txt || true
+if grep -q AlarmRingService after-snooze-services.txt; then echo "FAIL: ring service still running after snooze"; exit 1; else echo "snooze stopped the ring service"; fi
 sleep 75
 adb exec-out screencap -p > ringing-after-snooze.png
+adb shell dumpsys activity services com.vanipy.kokok > rering-services.txt || true
+grep -q AlarmRingService rering-services.txt || { echo "FAIL: snoozed alarm did not re-ring (service absent)"; exit 1; }
 
 # dismiss the snoozed ring
 python3 tools/uitap.py "dismiss"
+sleep 3
+adb shell dumpsys activity services com.vanipy.kokok > after-dismiss-services.txt || true
+if grep -q AlarmRingService after-dismiss-services.txt; then echo "FAIL: ring service still running after dismiss"; exit 1; else echo "dismiss stopped the ring service"; fi
 
 # denied-permission evidence: revoke exact-alarm appop, reopen, capture checklist
 adb shell appops set com.vanipy.kokok SCHEDULE_EXACT_ALARM deny || true

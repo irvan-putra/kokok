@@ -76,6 +76,12 @@ jobs:
             permission-denied.png
             after-reboot.png
             dumpsys-after-reboot.txt
+            ring-services.txt
+            media-player-1.txt
+            media-player-2.txt
+            after-snooze-services.txt
+            rering-services.txt
+            after-dismiss-services.txt
             ui.xml
             ui2.xml
             ui3.xml
