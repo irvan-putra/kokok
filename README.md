@@ -35,6 +35,8 @@ plus an optional message you choose to send yourself.
   feed-managed.
 - A fired, missed or dismissed alarm never rings again, even if the feed still lists
   it. Repeating alarms use a fresh id per occurrence (id + date).
+- A ringing alarm keeps ringing until you dismiss or snooze it; there is no
+  auto-silence timeout (user-chosen behavior, 2026-11-19).
 - An alarm found late: if it is at most 10 minutes late it rings immediately;
   later than that it is marked `missed`. (AOSP DeskClock instead posts a "missed
   alarm" notification without ringing; the 10-minute immediate ring is a deliberate
