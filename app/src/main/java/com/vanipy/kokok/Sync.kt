@@ -35,7 +35,9 @@ object Sync {
 
     fun fetchAndApply(context: Context): Outcome {
         val url = context.feedUrl
-        require(url.startsWith("https://")) { "feed URL must be https" }
+        // https only; debug builds also accept the emulator host loopback for synthetic tests
+        val syntheticHost = BuildConfig.DEBUG && url.startsWith("http://10.0.2.2")
+        require(url.startsWith("https://") || syntheticHost) { "feed URL must be https" }
         val conn = URL(url).openConnection() as HttpURLConnection
         conn.instanceFollowRedirects = false
         conn.connectTimeout = 15_000
