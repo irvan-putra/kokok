@@ -40,12 +40,15 @@ jobs:
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
       - name: build debug APK
-        run: gradle assembleDebug --no-daemon
+        run: |
+          gradle assembleDebug --no-daemon
+          pkill -f GradleDaemon || true
       - name: OS-level alarm flow on API 34 emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
+          emulator-options: -no-snapshot-save -noaudio -no-boot-anim -memory 2048
           script: bash tools/emulator_test.sh
       - name: upload emulator evidence
         if: always()
