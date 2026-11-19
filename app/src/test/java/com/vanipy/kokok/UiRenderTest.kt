@@ -143,7 +143,11 @@ class UiRenderTest {
     @Test
     fun manifestLauncherAndThemedMaskRender() {
         val context = RuntimeEnvironment.getApplication()
-        val icon = context.packageManager.getApplicationIcon(context.packageName)
+        // Robolectric PackageManager shadow does not implement application-icon
+        // loading. Assert the manifest binding, then inflate that exact resource.
+        val manifest = File("src/main/AndroidManifest.xml").readText()
+        assertTrue(manifest.contains("android:icon=\"@mipmap/ic_launcher\""))
+        val icon = context.getDrawable(R.mipmap.ic_launcher)!!
         assertTrue(icon is android.graphics.drawable.AdaptiveIconDrawable)
         val adaptive = icon as android.graphics.drawable.AdaptiveIconDrawable
         val mono = adaptive.monochrome
