@@ -108,6 +108,9 @@ sleep 3
 adb shell dumpsys activity services com.vanipy.kokok > after-dismiss-services.txt || true
 if grep -q AlarmRingService after-dismiss-services.txt; then echo "FAIL: ring service still running after dismiss"; exit 1; else echo "dismiss stopped the ring service"; fi
 
+# collapse the shade left open by the ring-action taps so the app is captured
+adb shell cmd statusbar collapse
+
 # denied-permission evidence: revoke exact-alarm appop, reopen, capture checklist
 adb shell appops set com.vanipy.kokok SCHEDULE_EXACT_ALARM deny || true
 adb shell am start -n com.vanipy.kokok/.MainActivity
