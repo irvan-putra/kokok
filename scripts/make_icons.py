@@ -1,40 +1,58 @@
 #!/usr/bin/env python3
-"""Generate kokok launcher icons: sun over horizon + version strip badge.
-Outputs legacy, round and adaptive-icon assets into app/src/main/res."""
+"""Generate kokok launcher icons in the shared family style:
+navy background, centered dawn glyph, bottom strip with version text.
+Outputs legacy, round, adaptive and monochrome assets into app/src/main/res."""
+import math
 import os
+import re
 from PIL import Image, ImageDraw
 
-VERSION = "0.1.0"
-ORANGE = (255, 140, 0, 255)
-DEEP = (30, 20, 40, 255)
-YELLOW = (255, 200, 90, 255)
+def _version():
+    gradle = os.path.join(os.path.dirname(__file__), "..", "app", "build.gradle.kts")
+    m = re.search(r'versionName\s*=\s*"([^"]+)"', open(gradle).read())
+    return m.group(1) if m else "0.0.0"
+
+VERSION = _version()
+BG = (16, 24, 40, 255)
+STRIP = (8, 12, 22, 255)
+GLYPH = (242, 244, 247, 255)
+ACCENT = (255, 140, 0, 255)
 
 DENSITIES = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
 ADAPTIVE = 432  # foreground asset base size
 
 
-def sun_scene(size, version_strip=True):
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+def dawn_glyph(d, cx, cy, r, color):
+    """Rising sun with rays: half-disc on a horizon line plus rays above."""
+    d.pieslice([cx - r, cy - r, cx + r, cy + r], 180, 360, fill=color)
+    lw = max(2, r // 6)
+    d.line([cx - int(r * 1.5), cy, cx + int(r * 1.5), cy], fill=color, width=lw)
+    for deg in (35, 70, 110, 145):
+        a = math.radians(deg)
+        r1, r2 = r + lw * 2, r + lw * 2 + int(r * 0.45)
+        x1, y1 = cx - r1 * math.cos(a), cy - r1 * math.sin(a)
+        x2, y2 = cx - r2 * math.cos(a), cy - r2 * math.sin(a)
+        d.line([x1, y1, x2, y2], fill=color, width=lw)
+
+
+def icon(size, version_strip=True, glyph_color=GLYPH, strip=True):
+    img = Image.new("RGBA", (size, size), BG)
     d = ImageDraw.Draw(img)
-    horizon = int(size * 0.62)
-    d.rectangle([0, horizon, size, size], fill=DEEP)
-    r = int(size * 0.20)
-    cx, cy = size // 2, horizon
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=ORANGE)
-    d.rectangle([0, 0, size, horizon], fill=(255, 240, 220, 255))
-    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=ORANGE)
-    d.rectangle([0, horizon - 2, size, horizon + 2], fill=YELLOW)
-    if version_strip:
-        strip_h = max(10, size // 10)
-        d.rectangle([0, size - strip_h, size, size], fill=(0, 0, 0, 200))
-        try:
-            from PIL import ImageFont
-            font = ImageFont.truetype("DejaVuSansMono-Bold.ttf", int(strip_h * 0.62))
-        except Exception:
-            font = ImageFont.load_default()
-        tw = d.textlength(VERSION, font=font)
-        d.text(((size - tw) / 2, size - strip_h + (strip_h - int(strip_h * 0.62)) / 2 - 1),
-               VERSION, fill=(255, 255, 255, 255), font=font)
+    strip_h = int(size * 0.22)
+    cy = int((size - strip_h) * 0.66)
+    r = int(size * 0.13)
+    dawn_glyph(d, size // 2, cy, r, glyph_color)
+    if strip:
+        d.rectangle([0, size - strip_h, size, size], fill=STRIP)
+        if version_strip:
+            try:
+                from PIL import ImageFont
+                font = ImageFont.truetype("DejaVuSans-Bold.ttf", int(strip_h * 0.52))
+            except Exception:
+                font = ImageFont.load_default()
+            tw = d.textlength(VERSION, font=font)
+            d.text(((size - tw) / 2, size - strip_h + (strip_h - int(strip_h * 0.52)) / 2 - 1),
+                   VERSION, fill=GLYPH, font=font)
     return img
 
 
@@ -52,17 +70,15 @@ def main():
     for dpi, px in DENSITIES.items():
         d = os.path.join(res, f"mipmap-{dpi}")
         os.makedirs(d, exist_ok=True)
-        sun_scene(px).save(os.path.join(d, "ic_launcher.png"))
-        round_mask(sun_scene(px)).save(os.path.join(d, "ic_launcher_round.png"))
-        sun_scene(ADAPTIVE).save(os.path.join(d, "ic_launcher_foreground.png"))
-        # monochrome themed icon: alpha silhouette of sun + horizon
+        icon(px).save(os.path.join(d, "ic_launcher.png"))
+        round_mask(icon(px)).save(os.path.join(d, "ic_launcher_round.png"))
+        # adaptive foreground: navy bg is provided by the launcher; glyph only,
+        # version strip included to satisfy the all-icon-types version rule
+        icon(ADAPTIVE, glyph_color=ACCENT).save(os.path.join(d, "ic_launcher_foreground.png"))
+        # monochrome themed icon: alpha silhouette of the dawn glyph
         mono = Image.new("RGBA", (ADAPTIVE, ADAPTIVE), (0, 0, 0, 0))
         md = ImageDraw.Draw(mono)
-        h = int(ADAPTIVE * 0.62)
-        r = int(ADAPTIVE * 0.20)
-        cx = ADAPTIVE // 2
-        md.ellipse([cx - r, h - r, cx + r, h + r], fill=(0, 0, 0, 255))
-        md.rectangle([0, h - 6, ADAPTIVE, h + 6], fill=(0, 0, 0, 0))
+        dawn_glyph(md, ADAPTIVE // 2, int(ADAPTIVE * 0.66), int(ADAPTIVE * 0.13), (0, 0, 0, 255))
         mono.save(os.path.join(d, "ic_launcher_monochrome.png"))
     anydpi = os.path.join(res, "mipmap-anydpi-v26")
     os.makedirs(anydpi, exist_ok=True)
