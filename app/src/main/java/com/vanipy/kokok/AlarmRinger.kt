@@ -12,11 +12,15 @@ object AlarmRinger {
         if (player != null) return
         val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        player = MediaPlayer().apply {
-            setDataSource(context, uri)
-            isLooping = true
-            prepare()
-            start()
+        try {
+            player = MediaPlayer().apply {
+                setDataSource(context, uri)
+                isLooping = true
+                prepare()
+                start()
+            }
+        } catch (e: Exception) {
+            player = null // sound is best-effort; the full-screen UI still alarms
         }
     }
 

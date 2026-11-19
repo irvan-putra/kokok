@@ -9,8 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Cross-implementation vector: the envelope fixture was produced by tools/feed_write.py (Python Tink). */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class FeedCryptoTest {
     private static String fixture(String name) throws Exception {
         return new String(Files.readAllBytes(Paths.get("src/test/resources/" + name)), StandardCharsets.UTF_8);

@@ -7,7 +7,12 @@ import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class FeedModelTest {
     private static FeedModel.Alarm alarm(String id, long at) {
         return new FeedModel.Alarm(id, "label-" + id, at, 9);
