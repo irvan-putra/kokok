@@ -39,6 +39,15 @@ class WriterTest(unittest.TestCase):
         self.assertEqual(plain, self.app.primitive(hybrid.HybridDecrypt).decrypt(
             base64.b64decode(env['enc']), w.CONTEXT_INFO))
 
+    def test_encrypt_refuses_mismatched_signing_public_key(self):
+        (self.root / 'in.json').write_bytes(b'{"v":1,"rev":1,"alarms":[]}')
+        other = tink.new_keyset_handle(signature.signature_key_templates.ECDSA_P256)
+        w.write_keyset(other.public_keyset_handle(), self.root / 'other-public.json')
+        with self.assertRaises(tink.TinkError):
+            w.cmd_encrypt(argparse.Namespace(input=self.root/'in.json', to=self.root/'app-public.json',
+                sign=self.root/'sign-private.json', sign_public=self.root/'other-public.json', out=self.root/'out.json'))
+        self.assertFalse((self.root / 'out.json').exists())
+
     def test_pair_accepts_public_config(self):
         w.cmd_pair(argparse.Namespace(url='https://example.org/alarms.json', verify=self.root/'sign-public.json', out=self.root/'pair.json'))
         config = json.loads((self.root/'pair.json').read_text())

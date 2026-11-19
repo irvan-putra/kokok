@@ -69,6 +69,12 @@ def cmd_encrypt(args):
         payload = f.read()
     app_pub = read_keyset(args.to)
     sign_priv = read_keyset(args.sign)
+    verify_pub = read_keyset(args.sign_public)
+    # Prevent producing an envelope labeled with a different publisher's key id.
+    # This challenge is local only and carries no feed plaintext.
+    challenge = b'kokok-writer-key-match-v1'
+    proof = sign_priv.primitive(signature.PublicKeySign).sign(challenge)
+    verify_pub.primitive(signature.PublicKeyVerify).verify(proof, challenge)
 
     enc = app_pub.primitive(hybrid.HybridEncrypt).encrypt(payload, CONTEXT_INFO)
     enc_b64 = base64.b64encode(enc).decode('ascii')

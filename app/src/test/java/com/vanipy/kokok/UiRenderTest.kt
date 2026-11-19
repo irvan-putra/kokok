@@ -23,15 +23,16 @@ import java.io.FileOutputStream
 @Config(sdk = [34])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class UiRenderTest {
-    private fun render(view: View, out: File) {
-        val width = 1080
+    private fun render(view: View, out: File, width: Int = 1080) {
         view.measure(
             View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
         val h = maxOf(view.measuredHeight, 1200)
         view.layout(0, 0, width, h)
         val bmp = Bitmap.createBitmap(width, h, Bitmap.Config.ARGB_8888)
-        view.draw(Canvas(bmp))
+        val canvas = Canvas(bmp)
+        canvas.drawColor(android.graphics.Color.WHITE)
+        view.draw(canvas)
         out.parentFile?.mkdirs()
         FileOutputStream(out).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
@@ -78,5 +79,30 @@ class UiRenderTest {
         val out = File("build/outputs/ui/alarm-ringing.png")
         render(activity.findViewById(android.R.id.content), out)
         assertTrue(out.length() > 5_000)
+    }
+
+    @Test
+    fun pairingReviewRendersAtPhoneAndTabletWidths() {
+        val context = RuntimeEnvironment.getApplication()
+        context.getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
+        val pub = org.json.JSONObject(File("src/test/resources/sign-pub.json").readText())
+        val config = org.json.JSONObject().put("feedUrl", "https://example.org/feed.json")
+            .put("verifyKeyset", pub).toString()
+        val intent = android.content.Intent(context, MainActivity::class.java).apply {
+            action = android.content.Intent.ACTION_SEND
+            type = "text/plain"
+            putExtra(android.content.Intent.EXTRA_TEXT, config)
+        }
+        val activity = Robolectric.buildActivity(MainActivity::class.java, intent).create().resume().visible().get()
+        val dialog = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog()
+        assertTrue(dialog.isShowing)
+        for (width in listOf(960, 1170, 1920)) {
+            render(dialog.window!!.decorView, File("build/outputs/ui/pairing-review-$width.png"), width)
+            // Render the whole main content, including the paste and public-key controls.
+            val root = (activity.findViewById<android.view.ViewGroup>(android.R.id.content).getChildAt(0) as android.widget.ScrollView).getChildAt(0)
+            render(root, File("build/outputs/ui/pairing-main-$width.png"), width)
+        }
+        dialog.dismiss()
+        activity.finish()
     }
 }
