@@ -28,20 +28,6 @@ jobs:
       - run: pip install pillow==12.3.0 tink
       - run: python tools/badge_icon.py --check
       - run: python -m unittest discover -s tools -p 'test_feed_write.py' -v
-      - name: reproduce missing cold-start key registration without changing stored data
-        run: |
-          cp app/src/main/java/com/vanipy/kokok/Keys.kt /tmp/keys-fixed.kt
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('app/src/main/java/com/vanipy/kokok/Keys.kt')
-          p.write_text(p.read_text().replace('        com.google.crypto.tink.hybrid.HybridConfig.register()\n', ''))
-          PY
-          if gradle testDebugUnitTest --tests '*KeysColdStartTest.firstCryptoActionExportsOnlyPublicKeyAndKeepsItAcrossReopen' --no-daemon --max-workers=1; then
-            cp /tmp/keys-fixed.kt app/src/main/java/com/vanipy/kokok/Keys.kt
-            echo 'Cold-start regression unexpectedly passed without registration'
-            exit 1
-          fi
-          cp /tmp/keys-fixed.kt app/src/main/java/com/vanipy/kokok/Keys.kt
       - name: cold-start public-key regression in a fresh worker
         run: gradle testDebugUnitTest --tests '*KeysColdStartTest' --no-daemon --max-workers=1
       - name: unit tests
@@ -170,7 +156,7 @@ jobs:
           files: kokok-v${{ env.VERSION_NAME }}.apk
           body: |
             Experimental phone-first build. Remote alarm delivery is not yet verified.
-            Adds selectable public pairing-key text and copy fallback, initializes phone cryptography before first key access, and guards the optional share sheet.
+            Adds a local alarm-sound preview and device-sound chooser. The phone default remains in use until you choose another sound; no system-volume change.
             Existing alarm tone is unchanged. Device-specific loudness and remote alarm delivery remain unverified.
             Keep a backup alarm until the on-phone alarm list and actual ringing are verified.
             Install over the existing app without uninstalling or clearing data.

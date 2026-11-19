@@ -10,10 +10,11 @@ object AlarmRinger {
     private var player: MediaPlayer? = null
     private var vibrator: android.os.Vibrator? = null
 
+    fun isRinging(): Boolean = player != null
+
     fun start(context: Context) {
         if (player != null) return
-        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val uri = AlarmSound.playbackUri(context)
         try {
             player = MediaPlayer().apply {
                 setDataSource(context, uri)

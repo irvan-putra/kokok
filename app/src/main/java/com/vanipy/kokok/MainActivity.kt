@@ -33,6 +33,10 @@ import java.util.Locale
 
 class MainActivity : Activity() {
 
+    private var soundPreview: android.media.MediaPlayer? = null
+    private val previewHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val stopPreviewTask = Runnable { stopSoundPreview() }
+    private val soundPickerRequest = 37
     private lateinit var root: LinearLayout
     private var alarmVolumeLabel: TextView? = null
     private val volumeObserver = object : android.database.ContentObserver(
@@ -64,6 +68,7 @@ class MainActivity : Activity() {
     }
 
     override fun onPause() {
+        stopSoundPreview()
         contentResolver.unregisterContentObserver(volumeObserver)
         super.onPause()
     }
@@ -234,6 +239,33 @@ class MainActivity : Activity() {
             render()
         })
 
+        root.addView(text("alarm sound", 20f, Color.BLACK, bold = true, topPad = 24))
+        root.addView(text(AlarmSound.label(this), 16f, Color.DKGRAY).apply { tag = "alarm-sound-label" })
+        root.addView(text("Only kokok uses this choice. The phone default stays in use until you choose another sound. Preview plays for up to 10 seconds at your existing alarm volume, without changing any alarm.", 14f, Color.DKGRAY))
+        root.addView(button("preview alarm sound (up to 10 s)") { previewSound() })
+        root.addView(button("stop sound preview") { stopSoundPreview() })
+        root.addView(button("choose alarm sound") {
+            stopSoundPreview()
+            try {
+                val picker = Intent(android.media.RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                    putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_TYPE, android.media.RingtoneManager.TYPE_ALARM)
+                    putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                    putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                    putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, AlarmSound.playbackUri(this@MainActivity))
+                    putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_TITLE, "Choose kokok alarm sound")
+                }
+                @Suppress("DEPRECATION")
+                startActivityForResult(picker, soundPickerRequest)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Sound chooser unavailable. Current sound kept.", Toast.LENGTH_LONG).show()
+            }
+        })
+        root.addView(button("use phone default alarm sound") {
+            stopSoundPreview()
+            AlarmSound.useDefault(this)
+            render()
+        })
+
         root.addView(text("pairing", 20f, Color.BLACK, bold = true, topPad = 32))
         root.addView(text(if (feedUrl.isEmpty()) "not paired" else "publisher configured; check last sync and alarm list above", 16f, Color.DKGRAY))
         root.addView(text("Paste the non-secret pairing JSON from your trusted assistant, or share it to kokok. No password or private key belongs here.", 16f, Color.DKGRAY))
@@ -294,6 +326,57 @@ class MainActivity : Activity() {
                 }
             }.start()
         })
+    }
+
+    private fun stopSoundPreview() {
+        previewHandler.removeCallbacks(stopPreviewTask)
+        soundPreview?.let { try { it.stop() } catch (e: Exception) {} ; it.release() }
+        soundPreview = null
+    }
+
+    private fun previewSound() {
+        stopSoundPreview()
+        if (AlarmRinger.isRinging()) {
+            Toast.makeText(this, "Dismiss or snooze the ringing alarm first", Toast.LENGTH_LONG).show()
+            return
+        }
+        val player = android.media.MediaPlayer()
+        soundPreview = player
+        try {
+            player.setDataSource(this, AlarmSound.playbackUri(this))
+            player.setAudioAttributes(android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+            player.setOnCompletionListener { stopSoundPreview() }
+            player.setOnErrorListener { _, _, _ ->
+                stopSoundPreview()
+                Toast.makeText(this, "Preview failed. Choose an available device alarm sound.", Toast.LENGTH_LONG).show()
+                true
+            }
+            player.prepare()
+            player.start()
+            previewHandler.postDelayed(stopPreviewTask, 10_000)
+        } catch (e: Exception) {
+            stopSoundPreview()
+            Toast.makeText(this, "Preview unavailable. Current sound and alarm data kept.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    @Deprecated("Android Activity result API")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != soundPickerRequest || resultCode != RESULT_OK) return
+        @Suppress("DEPRECATION")
+        val uri = data?.getParcelableExtra<Uri>(android.media.RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+        if (uri != null) {
+            try {
+                if (uri == android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM))
+                    AlarmSound.useDefault(this) else AlarmSound.save(this, uri)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Sound not changed. Choose a device alarm sound.", Toast.LENGTH_LONG).show()
+            }
+        }
+        render()
     }
 
     private fun checkRow(label: String, ok: Boolean): View =
