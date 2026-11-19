@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [main]
+    branches: [main, integration/pairing-icon-volume]
   workflow_dispatch:
     inputs:
       release_version:
@@ -23,8 +23,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install pillow==12.3.0
+      - run: pip install pillow==12.3.0 tink
       - run: python tools/badge_icon.py --check
+      - run: python -m unittest discover -s tools -p 'test_feed_write.py' -v
       - name: unit tests
         run: gradle testDebugUnitTest --no-daemon
       - name: upload rendered UI screenshots
@@ -81,14 +82,22 @@ jobs:
             permission-denied.png
             after-reboot.png
             dumpsys-after-reboot.txt
+            ring-services.txt
+            media-player-1.txt
+            media-player-2.txt
+            after-snooze-services.txt
+            rering-services.txt
+            after-dismiss-services.txt
             ui.xml
             ui2.xml
             ui3.xml
             ui4.xml
+            uitap-fail.xml
+            uitap-fail.png
 
   release:
     runs-on: ubuntu-latest
-    needs: test  # experimental releases gate on unit tests only; emulator flow evidence is independent
+    needs: [test, emulator]  # Release only after combined unit and runtime validation.
     permissions:
       contents: write  # create prerelease + upload APK asset
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_version != ''
