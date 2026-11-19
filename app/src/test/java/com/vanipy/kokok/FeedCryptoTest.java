@@ -64,4 +64,27 @@ public class FeedCryptoTest {
             assertTrue(true);
         }
     }
+
+    @Test
+    public void rejectsWrongOrMissingPublisherKeyId() throws Exception {
+        org.json.JSONObject env = new org.json.JSONObject(fixture("envelope.json"));
+        for (String kid : new String[]{"", "wrong-publisher"}) {
+            env.put("kid", kid);
+            try {
+                FeedCrypto.openEnvelope(env.toString(), fixture("sign-pub.json"),
+                        FeedCrypto.readJsonKeyset(fixture("app-priv.json")));
+                fail("wrong key id must fail closed");
+            } catch (GeneralSecurityException expected) {
+                assertTrue(expected.getMessage().contains("key id"));
+            }
+        }
+        env.remove("kid");
+        try {
+            FeedCrypto.openEnvelope(env.toString(), fixture("sign-pub.json"),
+                    FeedCrypto.readJsonKeyset(fixture("app-priv.json")));
+            fail("missing key id must fail closed");
+        } catch (GeneralSecurityException expected) {
+            assertTrue(true);
+        }
+    }
 }

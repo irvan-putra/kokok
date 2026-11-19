@@ -78,3 +78,26 @@ optional and off by default.
 - The feed URL is a secret-ish bearer URL but not baked into this repo; it is entered
   at pairing time.
 - v1 has no automatic acknowledgement channel from the phone to the assistant.
+
+## Pairing configuration (recovery branch, not a released feature)
+
+The app can review pasted pairing JSON or text shared to kokok. Only the HTTPS
+feed URL and publisher **public** verification keyset belong in this configuration.
+The writer's `pair --url ... --verify publisher-public.json --out pairing.json`
+command prepares that non-secret configuration. No operational endpoint or signing
+key is provided by this code. Never use synthetic test keys for a real feed.
+
+Import shows a trust review before changing anything. Replacement retains the
+phone key, alarm records and monotonic revision floor. The next feed must exceed
+the existing revision, even from a replacement publisher. Its full alarm list can
+cancel omitted remote alarms and ring overdue alarms immediately. Local test
+alarms are excluded from remote cancellation. Canceling the review changes nothing.
+A successful configuration import is not an alarm receipt; inspect the applied
+revision and on-device alarm list after sync. Publisher rotation needs explicit
+review of the new public keyset and a higher revision, not a replay-state reset.
+
+Known custody limit: the phone keyset is in app-private device-protected storage,
+not hardware-backed Keystore storage. Backup is disabled. The example writer's
+private-key JSON paths are an interface, not a safe production custody solution.
+Protected publisher custody and endpoint approval remain separate operational
+choices. Never publish keys, plaintext alarms, or personal pairing configuration.

@@ -89,9 +89,7 @@ class MainActivity : Activity() {
                 Thread {
                     synchronized(Sync) {
                         // Keep revision, phone key and alarms. Never clear them on re-pair.
-                        val ok = getSharedPreferences("feed", Context.MODE_PRIVATE).edit()
-                            .putString("feedUrl", config.feedUrl)
-                            .putString("verifyKeyset", config.verifyKeyset).commit()
+                        val ok = PairingStore.install(this, config)
                         if (!ok) {
                             runOnUiThread { Toast.makeText(this, "Pairing could not be saved", Toast.LENGTH_LONG).show() }
                             return@Thread
