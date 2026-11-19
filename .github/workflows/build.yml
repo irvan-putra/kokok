@@ -68,12 +68,29 @@ jobs:
             sleep 75
             adb exec-out screencap -p > ringing.png
             adb shell dumpsys notification | grep -B2 -A4 com.vanipy.kokok || true
-            # dismiss via button if ringing UI is up
+            # snooze via button: ringing stops, alarm rescheduled +1 min
             adb shell uiautomator dump /sdcard/ui2.xml
             adb pull /sdcard/ui2.xml ui2.xml
             python3 - <<'PYEOF'
             import re, subprocess
             xml = open('ui2.xml').read()
+            m = re.search(r'text="snooze 1 min"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
+            if m:
+                x = (int(m.group(1)) + int(m.group(3))) // 2
+                y = (int(m.group(2)) + int(m.group(4))) // 2
+                subprocess.run(["adb", "shell", "input", "tap", str(x), str(y)], check=True)
+                print("snoozed")
+            else:
+                raise SystemExit("no snooze button found while ringing")
+            PYEOF
+            sleep 75
+            adb exec-out screencap -p > ringing-after-snooze.png
+            # dismiss the snoozed ring
+            adb shell uiautomator dump /sdcard/ui3.xml
+            adb pull /sdcard/ui3.xml ui3.xml
+            python3 - <<'PYEOF'
+            import re, subprocess
+            xml = open('ui3.xml').read()
             m = re.search(r'text="dismiss"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
             if m:
                 x = (int(m.group(1)) + int(m.group(3))) // 2
@@ -81,10 +98,38 @@ jobs:
                 subprocess.run(["adb", "shell", "input", "tap", str(x), str(y)], check=True)
                 print("dismissed")
             else:
-                print("no dismiss button found")
+                raise SystemExit("snoozed alarm did not ring again")
             PYEOF
+            # denied-permission evidence: revoke exact-alarm appop, reopen, capture checklist
+            adb shell appops set com.vanipy.kokok SCHEDULE_EXACT_ALARM deny || true
+            adb shell am start -n com.vanipy.kokok/.MainActivity
+            sleep 4
+            adb exec-out screencap -p > permission-denied.png
+            adb shell appops set com.vanipy.kokok SCHEDULE_EXACT_ALARM allow || true
+            # reboot: set a fresh test alarm, reboot, verify OS kept/rescheduled it
+            adb shell am start -n com.vanipy.kokok/.MainActivity
             sleep 3
-            adb exec-out screencap -p > after-dismiss.png
+            adb shell uiautomator dump /sdcard/ui4.xml
+            adb pull /sdcard/ui4.xml ui4.xml
+            python3 - <<'PYEOF'
+            import re, subprocess
+            xml = open('ui4.xml').read()
+            m = re.search(r'text="test alarm \(rings in 60 s\)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
+            assert m, "test alarm button not found"
+            x = (int(m.group(1)) + int(m.group(3))) // 2
+            y = (int(m.group(2)) + int(m.group(4))) // 2
+            subprocess.run(["adb", "shell", "input", "tap", str(x), str(y)], check=True)
+            PYEOF
+            adb reboot
+            for i in $(seq 1 60); do
+              sleep 5
+              if adb shell getprop sys.boot_completed 2>/dev/null | grep -q 1; then break; fi
+            done
+            sleep 10
+            adb exec-out screencap -p > after-reboot.png
+            # a test alarm set 60s pre-reboot should ring after boot (late grace) or be rescheduled
+            adb shell dumpsys alarm | grep -A3 com.vanipy.kokok > dumpsys-after-reboot.txt || true
+            adb shell dumpsys notification | grep -B2 -A4 com.vanipy.kokok >> dumpsys-after-reboot.txt || true
       - name: upload emulator evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -93,9 +138,14 @@ jobs:
           path: |
             main.png
             ringing.png
-            after-dismiss.png
+            ringing-after-snooze.png
+            permission-denied.png
+            after-reboot.png
+            dumpsys-after-reboot.txt
             ui.xml
             ui2.xml
+            ui3.xml
+            ui4.xml
 
   release:
     runs-on: ubuntu-latest
