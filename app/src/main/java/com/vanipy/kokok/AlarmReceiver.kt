@@ -1,15 +1,15 @@
 package com.vanipy.kokok
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.PowerManager
 
-/** Fires when the OS delivers a scheduled alarm: marks it fired, posts the
- *  full-screen alarm notification that brings up AlarmActivity over the lockscreen. */
+/** Fires when the OS delivers a scheduled alarm: marks it fired and hands the
+ *  ring to AlarmRingService, a foreground service that owns sustained audio.
+ *  Exact-alarm delivery puts the app on the temporary allowlist, so starting a
+ *  foreground service here is the supported route; a receiver-local player
+ *  would die with the receiver's process. */
 class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -23,52 +23,12 @@ class AlarmReceiver : BroadcastReceiver() {
         stored[id] = alarm.copy(status = "fired")
         FeedStore.saveAlarms(context, stored)
 
+        // bridges the gap until the service holds its own wake lock in onCreate
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        val wake = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "kokok:ring")
-        wake.acquire(60_000)
+        pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "kokok:ring").acquire(60_000)
 
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.createNotificationChannel(NotificationChannel(
-            CHANNEL, "alarms", NotificationManager.IMPORTANCE_HIGH).apply {
-            setBypassDnd(true)
-            // sustained sound + vibration come from AlarmRinger, not the notification
-            setSound(null, null)
-            enableVibration(false)
-        })
-
-        // start the sustained alarm here: when the phone is unlocked the
-        // full-screen intent surfaces as a heads-up notification and
-        // AlarmActivity never opens, so the activity cannot own the sound
-        AlarmRinger.start(context)
-
-        val fullScreen = PendingIntent.getActivity(
-            context, id.hashCode(),
-            Intent(context, AlarmActivity::class.java)
-                .putExtra("id", id).putExtra("label", label).putExtra("snooze", snooze)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-        val snoozePi = PendingIntent.getBroadcast(
-            context, id.hashCode() xor 1,
-            Intent(context, SnoozeReceiver::class.java)
-                .putExtra("id", id).putExtra("snooze", snooze),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val dismissPi = PendingIntent.getBroadcast(
-            context, id.hashCode() xor 2,
-            Intent(context, DismissReceiver::class.java).putExtra("id", id),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-        val notif = android.app.Notification.Builder(context, CHANNEL)
-            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle(label.ifEmpty { "alarm" })
-            .setContentText("ringing")
-            .setCategory(android.app.Notification.CATEGORY_ALARM)
-            .setOngoing(true)
-            .setFullScreenIntent(fullScreen, true)
-            .addAction(0, "snooze", snoozePi)
-            .addAction(0, "dismiss", dismissPi)
-            .build()
-        nm.notify(id.hashCode(), notif)
+        context.startForegroundService(Intent(context, AlarmRingService::class.java)
+            .putExtra("id", id).putExtra("label", label).putExtra("snooze", snooze))
     }
 
     companion object {

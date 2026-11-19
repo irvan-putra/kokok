@@ -9,6 +9,9 @@ class SnoozeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val id = intent.getStringExtra("id") ?: return
         val snooze = intent.getIntExtra("snooze", 9)
+        // stopping the foreground service ends its process ownership;
+        // its onDestroy stops the ringer and removes the foreground notification
+        context.stopService(Intent(context, AlarmRingService::class.java))
         AlarmRinger.stop()
         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(id.hashCode())
         val stored = FeedStore.alarms(context)

@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.os.Vibrator
 import android.view.Gravity
 import android.view.WindowManager
 import android.widget.Button
@@ -19,7 +18,6 @@ import java.util.Locale
 /** Lockscreen-visible ringing screen. Sound/vibration stop on snooze or dismiss. */
 class AlarmActivity : Activity() {
 
-    private var vibrator: Vibrator? = null
     private var alarmId: String = ""
     private var snooze: Int = 9
 
@@ -33,9 +31,9 @@ class AlarmActivity : Activity() {
             .requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {})
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
+        // fallback start only: AlarmRingService owns sustained sound/vibration;
+        // AlarmRinger.start is idempotent so this is a no-op when the service is up
         AlarmRinger.start(this)
-        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        vibrator?.vibrate(longArrayOf(0, 800, 400), 0)
 
         val alarm = FeedStore.alarms(this)[alarmId]
         val root = LinearLayout(this).apply {
@@ -83,8 +81,4 @@ class AlarmActivity : Activity() {
         setContentView(root)
     }
 
-    override fun onDestroy() {
-        vibrator?.cancel()
-        super.onDestroy()
-    }
 }
