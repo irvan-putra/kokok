@@ -18,7 +18,7 @@ import java.io.ByteArrayOutputStream
 /**
  * The phone's feed-decryption keypair, generated on pairing.
  * Private keyset lives only on this device (device-protected storage);
- * the public keyset JSON is shown once for the pairing step.
+ * only the public keyset JSON is shown for the pairing step.
  */
 object Keys {
 
@@ -40,7 +40,11 @@ object Keys {
         )
     }
 
+    @Synchronized
     fun handle(context: Context): KeysetHandle {
+        // Key export can be the first crypto action in a fresh app process.
+        // Do not depend on FeedCrypto's unrelated static initializer.
+        com.google.crypto.tink.hybrid.HybridConfig.register()
         val stored = context.appKeyset
         if (stored != null) {
             return CleartextKeysetHandle.read(JsonKeysetReader.withString(stored))

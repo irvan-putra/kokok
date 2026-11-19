@@ -248,13 +248,38 @@ class MainActivity : Activity() {
         root.addView(button(if (feedUrl.isEmpty()) "review pairing" else "review replacement pairing") {
             reviewPairing(pairingInput.text.toString())
         })
+        root.addView(text("phone public pairing key", 18f, Color.BLACK, bold = true, topPad = 24))
+        root.addView(text("Public information only. Long-press the text below and select all to copy. Your private decryption key stays on this phone.", 16f, Color.DKGRAY))
+        val publicKey = try { Keys.publicKeysetJson(this) } catch (e: Exception) { null }
+        val publicKeyView = text(publicKey ?: "Public key unavailable. Existing keys and alarms were kept. Close and reopen kokok to retry; do not clear app data.", 14f, Color.DKGRAY).apply {
+            typeface = Typeface.MONOSPACE
+            setTextIsSelectable(true)
+            tag = "phone-public-key"
+        }
+        root.addView(publicKeyView)
+        root.addView(button("copy phone public pairing key") {
+            if (publicKey != null) {
+                try {
+                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    clipboard.setPrimaryClip(android.content.ClipData.newPlainText("phone public pairing key", publicKey))
+                    Toast.makeText(this, "public pairing key copied", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Long-press the public text above to copy it", Toast.LENGTH_LONG).show()
+                }
+            } else Toast.makeText(this, "Public key unavailable; existing phone data kept", Toast.LENGTH_LONG).show()
+        })
         root.addView(button("share phone public pairing key") {
-            val pub = Keys.publicKeysetJson(this)
-            val send = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, pub)
-            }
-            startActivity(Intent.createChooser(send, "phone public pairing key"))
+            if (publicKey != null) {
+                try {
+                    val send = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, publicKey)
+                    }
+                    startActivity(Intent.createChooser(send, "phone public pairing key"))
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Share unavailable. Copy the public text above instead.", Toast.LENGTH_LONG).show()
+                }
+            } else Toast.makeText(this, "Public key unavailable; existing phone data kept", Toast.LENGTH_LONG).show()
         })
 
         root.addView(button("check for update", topPad = 24) {
