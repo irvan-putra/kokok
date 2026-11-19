@@ -44,9 +44,16 @@ xml = ('<?xml version="1.0" encoding="utf-8" standalone="yes" ?>\n<map>'
        + '<string name="appKeyset">' + esc(app_priv.replace('\n','')) + '</string>'
        + '</map>\n')
 open('feed.xml','w').write(xml)
-DP='/data/user_de/0/com.vanipy.kokok/shared_prefs'
-subprocess.run(['adb','shell','run-as','com.vanipy.kokok','mkdir','-p',DP], check=True)
-subprocess.run('cat feed.xml | adb shell "run-as com.vanipy.kokok sh -c \'cat > %s/feed.xml\'"' % DP, shell=True, check=True)
+import os
+for d in ['/data/user_de/0/com.vanipy.kokok/shared_prefs',
+          '/data/data/com.vanipy.kokok/shared_prefs']:
+    subprocess.run(['adb','shell','run-as','com.vanipy.kokok','mkdir','-p',d], check=True)
+    subprocess.run('cat feed.xml | adb shell "run-as com.vanipy.kokok sh -c \'cat > %s/feed.xml\'"' % d, shell=True, check=True)
+    r = subprocess.run(['adb','shell','run-as','com.vanipy.kokok','cat',d + '/feed.xml'],
+                       capture_output=True, text=True)
+    if 'feedUrl' not in r.stdout:
+        raise SystemExit('seed write did not land in ' + d)
+    print('seeded pairing state in', d)
 PYSEED
 
 # --- launch: native-pixel main screen + feed sync schedules alarm ---

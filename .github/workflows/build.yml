@@ -86,6 +86,8 @@ jobs:
             ui2.xml
             ui3.xml
             ui4.xml
+            uitap-fail.xml
+            uitap-fail.png
 
   release:
     runs-on: ubuntu-latest
