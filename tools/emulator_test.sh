@@ -47,8 +47,8 @@ PYSEED
 adb shell am start -n com.vanipy.kokok/.MainActivity
 sleep 5
 adb exec-out screencap -p > main.png
-adb shell uiautomator dump /sdcard/ui0.xml
-adb pull /sdcard/ui0.xml ui0.xml
+adb shell uiautomator dump /data/local/tmp/ui0.xml
+adb pull /data/local/tmp/ui0.xml ui0.xml
 python3 - <<'PYTAP'
 import re, subprocess
 xml = open('ui0.xml').read()
@@ -64,8 +64,8 @@ adb exec-out screencap -p > after-sync.png
 
 # --- rev 2 without the alarm: absence cancellation at OS level ---
 cp feed/envelope2.json feed/live.json
-adb shell uiautomator dump /sdcard/ui1b.xml
-adb pull /sdcard/ui1b.xml ui1b.xml
+adb shell uiautomator dump /data/local/tmp/ui1b.xml
+adb pull /data/local/tmp/ui1b.xml ui1b.xml
 python3 - <<'PYTAP2'
 import re, subprocess
 xml = open('ui1b.xml').read()
@@ -79,8 +79,8 @@ sleep 8
 adb shell dumpsys alarm | grep -B1 -A3 'ci-feed-1' > feed-canceled.txt || echo "ci-feed-1 not in dumpsys (expected after cancel)" > feed-canceled.txt
 adb exec-out screencap -p > after-cancel.png
 adb shell dumpsys alarm | grep -A2 com.vanipy.kokok || true
-adb shell uiautomator dump /sdcard/ui.xml
-adb pull /sdcard/ui.xml ui.xml
+adb shell uiautomator dump /data/local/tmp/ui.xml
+adb pull /data/local/tmp/ui.xml ui.xml
 
 # tap "test alarm (rings in 60 s)" by label
 python3 - <<'PYRING'
@@ -97,8 +97,8 @@ adb exec-out screencap -p > ringing.png
 adb shell dumpsys notification | grep -B2 -A4 com.vanipy.kokok || true
 
 # snooze via button: ringing stops, alarm rescheduled +1 min
-adb shell uiautomator dump /sdcard/ui2.xml
-adb pull /sdcard/ui2.xml ui2.xml
+adb shell uiautomator dump /data/local/tmp/ui2.xml
+adb pull /data/local/tmp/ui2.xml ui2.xml
 python3 - <<'PYSNOOZE'
 import re, subprocess
 xml = open('ui2.xml').read()
@@ -115,8 +115,8 @@ sleep 75
 adb exec-out screencap -p > ringing-after-snooze.png
 
 # dismiss the snoozed ring
-adb shell uiautomator dump /sdcard/ui3.xml
-adb pull /sdcard/ui3.xml ui3.xml
+adb shell uiautomator dump /data/local/tmp/ui3.xml
+adb pull /data/local/tmp/ui3.xml ui3.xml
 python3 - <<'PYDISMISS'
 import re, subprocess
 xml = open('ui3.xml').read()
@@ -140,8 +140,8 @@ adb shell appops set com.vanipy.kokok SCHEDULE_EXACT_ALARM allow || true
 # reboot: set a fresh test alarm, reboot, verify OS kept/rescheduled it
 adb shell am start -n com.vanipy.kokok/.MainActivity
 sleep 3
-adb shell uiautomator dump /sdcard/ui4.xml
-adb pull /sdcard/ui4.xml ui4.xml
+adb shell uiautomator dump /data/local/tmp/ui4.xml
+adb pull /data/local/tmp/ui4.xml ui4.xml
 python3 - <<'PYREBOOT'
 import re, subprocess
 xml = open('ui4.xml').read()
