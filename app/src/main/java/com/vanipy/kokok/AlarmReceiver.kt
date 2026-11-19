@@ -31,7 +31,15 @@ class AlarmReceiver : BroadcastReceiver() {
         nm.createNotificationChannel(NotificationChannel(
             CHANNEL, "alarms", NotificationManager.IMPORTANCE_HIGH).apply {
             setBypassDnd(true)
+            // sustained sound + vibration come from AlarmRinger, not the notification
+            setSound(null, null)
+            enableVibration(false)
         })
+
+        // start the sustained alarm here: when the phone is unlocked the
+        // full-screen intent surfaces as a heads-up notification and
+        // AlarmActivity never opens, so the activity cannot own the sound
+        AlarmRinger.start(context)
 
         val fullScreen = PendingIntent.getActivity(
             context, id.hashCode(),
