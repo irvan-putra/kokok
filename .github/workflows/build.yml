@@ -74,6 +74,11 @@ jobs:
         with:
           name: emulator-evidence
           path: |
+            emulator-logcat.txt
+            final-ui.xml
+            final-screen.png
+            full-feed-scheduled.txt
+            full-feed-canceled.txt
             main.png
             after-sync.png
             after-cancel.png

@@ -3,6 +3,7 @@
 # Exercised: feed sync schedules, absence cancellation, test alarm ring,
 # snooze re-ring, dismiss, denied exact-alarm permission UI, reboot survival.
 set -e
+trap 'adb logcat -d > emulator-logcat.txt; adb shell uiautomator dump /data/local/tmp/final-ui.xml; adb pull /data/local/tmp/final-ui.xml final-ui.xml; adb exec-out screencap -p > final-screen.png' EXIT
 cd "$(dirname "$0")/.."   # repo root
 
 pip install tink
@@ -45,8 +46,7 @@ xml = ('<?xml version="1.0" encoding="utf-8" standalone="yes" ?>\n<map>'
        + '</map>\n')
 open('feed.xml','w').write(xml)
 import os
-for d in ['/data/user_de/0/com.vanipy.kokok/shared_prefs',
-          '/data/data/com.vanipy.kokok/shared_prefs']:
+for d in ['/data/user_de/0/com.vanipy.kokok/shared_prefs']:
     subprocess.run(['adb','shell','run-as','com.vanipy.kokok','mkdir','-p',d], check=True)
     subprocess.run('cat feed.xml | adb shell "run-as com.vanipy.kokok sh -c \'cat > %s/feed.xml\'"' % d, shell=True, check=True)
     r = subprocess.run(['adb','shell','run-as','com.vanipy.kokok','cat',d + '/feed.xml'],
@@ -62,6 +62,9 @@ sleep 5
 adb exec-out screencap -p > main.png
 python3 tools/uitap.py "sync now"
 sleep 8
+python3 tools/assert_feed_state.py 1 present
+adb shell dumpsys alarm > full-feed-scheduled.txt
+grep -q 'tag=\*walarm\*:com.vanipy.kokok.RING' full-feed-scheduled.txt || { echo "FAIL: no exact ring alarm after authenticated feed"; exit 1; }
 adb shell dumpsys alarm | grep -B1 -A3 'ci-feed-1\|com.vanipy.kokok' > feed-scheduled.txt || true
 adb exec-out screencap -p > after-sync.png
 
@@ -69,6 +72,9 @@ adb exec-out screencap -p > after-sync.png
 cp feed/envelope2.json feed/live.json
 python3 tools/uitap.py "sync now"
 sleep 8
+python3 tools/assert_feed_state.py 2 absent
+adb shell dumpsys alarm > full-feed-canceled.txt
+if grep -q 'tag=\*walarm\*:com.vanipy.kokok.RING' full-feed-canceled.txt; then echo "FAIL: exact ring alarm remains after empty feed"; exit 1; fi
 adb shell dumpsys alarm | grep -B1 -A3 'ci-feed-1' > feed-canceled.txt || echo "ci-feed-1 not in dumpsys (expected after cancel)" > feed-canceled.txt
 adb exec-out screencap -p > after-cancel.png
 adb shell dumpsys alarm | grep -A2 com.vanipy.kokok || true
@@ -111,7 +117,7 @@ if grep -q AlarmRingService after-dismiss-services.txt; then echo "FAIL: ring se
 # collapse the shade left open by the ring-action taps so the app is captured
 adb shell cmd statusbar collapse
 
-# denied-permission evidence: revoke exact-alarm appop, reopen, capture checklist
+# exact permission probe only: USE_EXACT_ALARM may keep it allowed; screenshot is not denial proof
 adb shell appops set com.vanipy.kokok SCHEDULE_EXACT_ALARM deny || true
 adb shell am start -n com.vanipy.kokok/.MainActivity
 sleep 4
