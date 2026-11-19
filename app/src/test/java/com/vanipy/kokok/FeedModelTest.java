@@ -50,7 +50,7 @@ public class FeedModelTest {
         long now = 1_000_000L;
         Map<String, FeedStore.StoredAlarm> stored = new HashMap<>();
         FeedModel.Plan p = FeedModel.apply(feed(1, alarm("a", now - 61 * 60_000)), 0, stored, now);
-        assertEquals(1, p.toRingNow.size()); // user decision 2026-11-19: late alarms ring
+        assertEquals(1, p.toRingNow.size()); // late alarms ring, however late
     }
 
     @Test

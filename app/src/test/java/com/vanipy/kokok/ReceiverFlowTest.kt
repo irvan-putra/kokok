@@ -112,7 +112,7 @@ class ReceiverFlowTest {
     fun timeChangeUsesFreshClockNotStoredTimes() {
         // TIME_SET / TIMEZONE_CHANGED path re-evaluates against currentTimeMillis,
         // so a clock moved forward past an alarm rings it immediately (late alarms
-        // always ring, user decision 2026-11-19)
+        // always ring)
         val stored = FeedStore.alarms(context)
         val alarmAt = System.currentTimeMillis() - 30 * 60_000
         stored["a"] = FeedStore.StoredAlarm("a", "wake", alarmAt, 9, "scheduled")
