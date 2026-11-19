@@ -50,7 +50,7 @@ jobs:
         with:
           api-level: 34
           arch: x86_64
-          emulator-options: -no-snapshot-save -noaudio -no-boot-anim -memory 2048
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim -camera-back none -memory 2048
           script: bash tools/emulator_test.sh
       - name: upload emulator evidence
         if: always()
