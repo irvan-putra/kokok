@@ -10,7 +10,7 @@ P='com.vanipy.kokok'
 OUT=Path('sleep-upgrade-evidence');OUT.mkdir(exist_ok=True)
 import atexit
 def diagnostics():
- for name,args in [('logcat.txt',['logcat','-d']),('last-user-state.txt',['shell','am','get-started-user-state','0'])]:
+ for name,args in [('logcat.txt',['logcat','-d']),('last-user-state.txt',['shell','am','get-started-user-state','0']),('alarm-dump.txt',['shell','dumpsys','alarm'])]:
   try:(OUT/name).write_bytes(subprocess.check_output(['adb',*args],stderr=subprocess.STDOUT,timeout=20))
   except Exception:pass
 atexit.register(diagnostics)
@@ -72,6 +72,8 @@ adb('shell','locksettings','set-pin','2468')
 # Let the ACTUAL old app create and schedule an alarm through its normal UI.
 # The new build must retain both its record and AlarmManager delivery.
 tap('test alarm (rings in 60 s)')
+# SharedPreferences.apply persists asynchronously after the UI returns.
+wait(lambda: len(json.loads(parse(getprefs()).get('alarms','{}')))==1,20)
 before=parse(getprefs());assert before['lastAppliedRev']=='72'
 old_alarms=json.loads(before['alarms']);assert len(old_alarms)==1
 alarm_id=next(iter(old_alarms));assert old_alarms[alarm_id]['status']=='scheduled'
