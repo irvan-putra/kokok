@@ -139,7 +139,19 @@ assert 'playback started; looping=true' in adb('logcat','-d','-s','KokokAlarmAud
 # secure PIN UI. Typing immediately into the alarm window is not an unlock.
 tap('dismiss');wait(lambda:not service(),30)
 adb('shell','input','keyevent','224')
-adb('shell','input','swipe','540','1700','540','400','400');time.sleep(2)
+def pin_ready():
+ adb('shell','input','keyevent','224')
+ # Screenshot dimensions may differ from wm override after reboot. Derive the
+ # gesture from current physical display and require real PIN UI before typing.
+ import re
+ dimensions=adb('shell','wm','size')
+ w,h=map(int,re.findall(r'(\d+)x(\d+)',dimensions)[-1])
+ adb('shell','input','swipe',str(w//2),str(int(h*.85)),str(w//2),str(int(h*.2)),'500')
+ time.sleep(1)
+ adb('shell','uiautomator','dump','/data/local/tmp/pin-ready.xml')
+ xml=adb('shell','cat','/data/local/tmp/pin-ready.xml')
+ return 'pinEntry' in xml or 'key1' in xml
+wait(pin_ready,30)
 screenshot('before-pin-entry.png')
 adb('shell','uiautomator','dump','/data/local/tmp/pin-ui.xml')
 (OUT/'before-pin-entry.xml').write_text(adb('shell','cat','/data/local/tmp/pin-ui.xml'))
