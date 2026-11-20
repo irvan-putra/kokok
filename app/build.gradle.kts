@@ -11,8 +11,13 @@ android {
         applicationId = "com.vanipy.kokok"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 7
+        versionName = "0.2.1"
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all { it.maxHeapSize = "640m"; it.maxParallelForks = 1 }
     }
 
     buildFeatures {
@@ -25,6 +30,7 @@ kotlin {
 }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.crypto.tink:tink-android:1.13.0")
 
     testImplementation("junit:junit:4.13.2")

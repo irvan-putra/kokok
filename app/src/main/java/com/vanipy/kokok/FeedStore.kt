@@ -6,24 +6,26 @@ import org.json.JSONObject
 
 /**
  * Persistent alarm + sync state in SharedPreferences. The application sets
- * defaultToDeviceProtectedStorage=true, so this is readable before first unlock
- * (direct boot) which BOOT_COMPLETED/LOCKED_BOOT_COMPLETED rescheduling needs.
+ * the same ordinary context as actual signed 0.1.4. Runtime qualification showed
+ * its data is credential-protected despite the old manifest default. Do not move
+ * these files or claim pre-unlock recovery without an actual migration gate.
  */
 object FeedStore {
-    data class StoredAlarm(
+    data class StoredAlarm @JvmOverloads constructor(
         val id: String,
         val label: String,
         val atMillis: Long,
         val snooze: Int,
         val status: String, // scheduled | fired | dismissed | canceled
         val local: Boolean = false, // created on-device (test alarm), not feed-managed
+        val snoozed: Boolean = false, // locally selected next ring, never reset by feed refresh
     )
 
     private fun prefs(context: Context) =
         context.getSharedPreferences("feed", Context.MODE_PRIVATE)
 
     fun alarms(context: Context): MutableMap<String, StoredAlarm> {
-        val raw = prefs(context).getString("alarms", "{}") ?: "{}"
+        val raw = AlarmBootMirror.alarms(context)
         val obj = JSONObject(raw)
         val out = LinkedHashMap<String, StoredAlarm>()
         for (key in obj.keys()) {
@@ -35,6 +37,7 @@ object FeedStore {
                 a.optInt("snooze", 9),
                 a.getString("status"),
                 a.optBoolean("local", false),
+                a.optBoolean("snoozed", false),
             )
         }
         return out
@@ -49,9 +52,10 @@ object FeedStore {
                 .put("atMillis", a.atMillis)
                 .put("snooze", a.snooze)
                 .put("status", a.status)
-                .put("local", a.local))
+                .put("local", a.local)
+                .put("snoozed", a.snoozed))
         }
-        prefs(context).edit().putString("alarms", obj.toString()).apply()
+        AlarmBootMirror.saveAlarms(context, obj.toString())
     }
 
     var Context.lastAppliedRev: Long

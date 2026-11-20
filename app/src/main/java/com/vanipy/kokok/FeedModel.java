@@ -62,7 +62,9 @@ public final class FeedModel {
      * - rev must be strictly greater than lastAppliedRev (replay/rollback rejected)
      * - an alarm absent from the feed is canceled (unless locally created)
      * - an alarm already fired/missed/dismissed never rings again
-     * - a past-due alarm rings immediately no matter how late
+     * - an included locally snoozed alarm keeps its next ring and OS schedule
+     * - an included identical scheduled alarm is not needlessly rescheduled
+     * - a past-due new or changed alarm rings immediately no matter how late
      */
     public static Plan apply(Feed feed, long lastAppliedRev, Map<String, FeedStore.StoredAlarm> stored, long nowMillis) {
         if (feed.rev <= lastAppliedRev) {
@@ -73,6 +75,11 @@ public final class FeedModel {
             FeedStore.StoredAlarm prev = stored.get(a.id);
             if (prev != null && ("fired".equals(prev.getStatus()) || "missed".equals(prev.getStatus()) || "dismissed".equals(prev.getStatus()))) {
                 continue; // terminal state, never re-ring
+            }
+            if (prev != null && "scheduled".equals(prev.getStatus())) {
+                if (prev.getSnoozed()) continue; // local snooze wins for this ID
+                if (prev.getAtMillis() == a.atMillis && prev.getSnooze() == a.snooze
+                        && prev.getLabel().equals(a.label)) continue; // no OS/store change
             }
             if (a.atMillis > nowMillis) {
                 p.toSchedule.add(a);

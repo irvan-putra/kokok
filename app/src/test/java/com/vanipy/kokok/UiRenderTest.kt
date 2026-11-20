@@ -23,15 +23,16 @@ import java.io.FileOutputStream
 @Config(sdk = [34])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class UiRenderTest {
-    private fun render(view: View, out: File) {
-        val width = 1080
+    private fun render(view: View, out: File, width: Int = 1080) {
         view.measure(
             View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
         val h = maxOf(view.measuredHeight, 1200)
         view.layout(0, 0, width, h)
         val bmp = Bitmap.createBitmap(width, h, Bitmap.Config.ARGB_8888)
-        view.draw(Canvas(bmp))
+        val canvas = Canvas(bmp)
+        canvas.drawColor(android.graphics.Color.WHITE)
+        view.draw(canvas)
         out.parentFile?.mkdirs()
         FileOutputStream(out).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
@@ -79,4 +80,95 @@ class UiRenderTest {
         render(activity.findViewById(android.R.id.content), out)
         assertTrue(out.length() > 5_000)
     }
+
+    @Test
+    fun pairingReviewRendersAtPhoneAndTabletWidths() {
+        val context = RuntimeEnvironment.getApplication()
+        context.getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
+        val pub = org.json.JSONObject(File("src/test/resources/sign-pub.json").readText())
+        val config = org.json.JSONObject().put("feedUrl", "https://example.org/feed.json")
+            .put("verifyKeyset", pub).toString()
+        val intent = android.content.Intent(context, MainActivity::class.java).apply {
+            action = android.content.Intent.ACTION_SEND
+            type = "text/plain"
+            putExtra(android.content.Intent.EXTRA_TEXT, config)
+        }
+        val activity = Robolectric.buildActivity(MainActivity::class.java, intent).create().resume().visible().get()
+        val dialog = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog()
+        assertTrue(dialog.isShowing)
+        for (width in listOf(960, 1170, 1920)) {
+            render(dialog.window!!.decorView, File("build/outputs/ui/pairing-review-$width.png"), width)
+            // Render the whole main content, including the paste and public-key controls.
+            val root = (activity.findViewById<android.view.ViewGroup>(android.R.id.content).getChildAt(0) as android.widget.ScrollView).getChildAt(0)
+            render(root, File("build/outputs/ui/pairing-main-$width.png"), width)
+        }
+        dialog.dismiss()
+        activity.finish()
+    }
+    @Test
+    fun alarmVolumeControlDoesNotChangeUserVolume() {
+        val context = RuntimeEnvironment.getApplication()
+        val audio = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+        audio.setStreamVolume(android.media.AudioManager.STREAM_ALARM, 0, 0)
+        val activity = Robolectric.buildActivity(MainActivity::class.java).create().resume().visible().get()
+        org.junit.Assert.assertEquals(android.media.AudioManager.STREAM_ALARM, activity.volumeControlStream)
+        org.junit.Assert.assertEquals(0, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))
+        fun find(view: View): android.widget.Button? {
+            if (view is android.widget.Button && view.text.toString() == "adjust alarm volume") return view
+            if (view is android.view.ViewGroup) for (n in 0 until view.childCount) {
+                find(view.getChildAt(n))?.let { return it }
+            }
+            return null
+        }
+        val button = find(activity.findViewById(android.R.id.content))!!
+        button.performClick()
+        org.junit.Assert.assertEquals(0, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))
+        audio.setStreamVolume(android.media.AudioManager.STREAM_ALARM, 3, 0)
+        context.contentResolver.notifyChange(android.provider.Settings.System.CONTENT_URI, null)
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        fun label(view: View): android.widget.TextView? {
+            if (view is android.widget.TextView && view.text.toString().startsWith("alarm volume:")) return view
+            if (view is android.view.ViewGroup) for (n in 0 until view.childCount) {
+                label(view.getChildAt(n))?.let { return it }
+            }
+            return null
+        }
+        assertTrue(label(activity.findViewById(android.R.id.content))!!.text.toString().startsWith("alarm volume: 3 /"))
+        val root = (activity.findViewById<android.view.ViewGroup>(android.R.id.content).getChildAt(0) as android.widget.ScrollView).getChildAt(0)
+        render(root, File("build/outputs/ui/alarm-volume-main.png"), 960)
+        org.junit.Assert.assertEquals(3, audio.getStreamVolume(android.media.AudioManager.STREAM_ALARM))
+        activity.finish()
+    }
+
+    @Test
+    fun manifestLauncherAndThemedMaskRender() {
+        val context = RuntimeEnvironment.getApplication()
+        // Robolectric PackageManager shadow does not implement application-icon
+        // loading. Assert the manifest binding, then inflate that exact resource.
+        val manifest = File("src/main/AndroidManifest.xml").readText()
+        assertTrue(manifest.contains("android:icon=\"@mipmap/ic_launcher\""))
+        val icon = context.getDrawable(R.mipmap.ic_launcher)!!
+        assertTrue(icon is android.graphics.drawable.AdaptiveIconDrawable)
+        val adaptive = icon as android.graphics.drawable.AdaptiveIconDrawable
+        val mono = adaptive.monochrome
+        assertTrue(mono != null)
+        val themed = android.graphics.drawable.AdaptiveIconDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(225, 235, 220)), mono!!)
+        // Themed icons tint the entire alpha silhouette, not its RGB colours.
+        mono.setTint(android.graphics.Color.rgb(25, 55, 25))
+        val legacy = android.graphics.drawable.BitmapDrawable(context.resources,
+            android.graphics.BitmapFactory.decodeFile("src/main/res/mipmap-xxxhdpi/ic_launcher.png"))
+        for ((name, drawable) in listOf("adaptive" to adaptive, "themed" to themed, "legacy" to legacy)) {
+            for (size in listOf(48, 96, 192)) {
+                val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+                drawable.setBounds(0, 0, size, size)
+                drawable.draw(Canvas(bmp))
+                val out = File("build/outputs/ui/launcher-$name-$size.png")
+                out.parentFile?.mkdirs()
+                FileOutputStream(out).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                assertTrue(out.length() > 100)
+            }
+        }
+    }
+
 }

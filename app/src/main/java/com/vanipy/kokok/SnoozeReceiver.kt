@@ -17,7 +17,7 @@ class SnoozeReceiver : BroadcastReceiver() {
         val stored = FeedStore.alarms(context)
         val alarm = stored[id] ?: return
         val at = System.currentTimeMillis() + snooze * 60_000L
-        stored[id] = alarm.copy(atMillis = at, status = "scheduled")
+        stored[id] = alarm.copy(atMillis = at, status = "scheduled", snoozed = true)
         FeedStore.saveAlarms(context, stored)
         Scheduler.schedule(context, FeedModel.Alarm(id, alarm.label, at, snooze))
     }

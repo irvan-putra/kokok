@@ -5,6 +5,7 @@ import android.app.job.JobService
 
 class SyncJobService : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
+        if (!getSystemService(android.os.UserManager::class.java).isUserUnlocked) return false
         Thread {
             try {
                 fetchAndApplySafe()

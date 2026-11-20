@@ -6,7 +6,7 @@ Uses Google Tink (vetted library) on both ends with identical key templates:
 - signature: ECDSA_P256 (SHA-256, IEEE P1363 encoding)
 
 Envelope (JSON):
-  {"v":1, "kid": "<verify-key fingerprint>", "enc": "<base64 hybrid ciphertext>",
+  {"v":1, "kid": "<verify-keyset primary key id>", "enc": "<base64 hybrid ciphertext>",
    "sig": "<base64 signature over the utf-8 bytes of the enc string>"}
 """
 import argparse
@@ -69,15 +69,19 @@ def cmd_encrypt(args):
         payload = f.read()
     app_pub = read_keyset(args.to)
     sign_priv = read_keyset(args.sign)
+    verify_pub = read_keyset(args.sign_public)
+    # Prevent producing an envelope labeled with a different publisher's key id.
+    # This challenge is local only and carries no feed plaintext.
+    challenge = b'kokok-writer-key-match-v1'
+    proof = sign_priv.primitive(signature.PublicKeySign).sign(challenge)
+    verify_pub.primitive(signature.PublicKeyVerify).verify(proof, challenge)
 
     enc = app_pub.primitive(hybrid.HybridEncrypt).encrypt(payload, CONTEXT_INFO)
     enc_b64 = base64.b64encode(enc).decode('ascii')
     sig = sign_priv.primitive(signature.PublicKeySign).sign(enc_b64.encode('utf-8'))
 
-    kid = ''
-    if args.sign_public:
-        with open(args.sign_public) as f:
-            kid = json.load(f).get('keysetInfo', {}).get('primaryKeyId', '')
+    with open(args.sign_public) as f:
+        kid = str(json.load(f)['primaryKeyId'])
     envelope = {"v": 1, "kid": str(kid), "enc": enc_b64,
                 "sig": base64.b64encode(sig).decode('ascii')}
     with open(args.out, 'w') as f:
@@ -96,6 +100,21 @@ def cmd_decrypt(args):
         base64.b64decode(env['enc']), CONTEXT_INFO)
     sys.stdout.buffer.write(plain)
     sys.stdout.buffer.write(b'\n')
+
+
+def cmd_pair(args):
+    from urllib.parse import urlsplit
+    u = urlsplit(args.url)
+    if u.scheme != 'https' or not u.hostname or u.username is not None or u.password is not None or u.fragment:
+        raise ValueError('feed URL must be HTTPS with a host, no user info or fragment')
+    with open(args.verify) as f:
+        pub = json.load(f)
+    if not pub.get('key') or any(k.get('keyData', {}).get('keyMaterialType') != 'ASYMMETRIC_PUBLIC' for k in pub['key']):
+        raise ValueError('pairing requires a public verification keyset, never a private key')
+    read_keyset(args.verify).primitive(signature.PublicKeyVerify)
+    with open(args.out, 'w') as f:
+        json.dump({'feedUrl': args.url, 'verifyKeyset': pub}, f, separators=(',', ':'))
+    print(f'wrote non-secret pairing configuration to {args.out}')
 
 
 def main():
@@ -118,7 +137,7 @@ def main():
     e.add_argument('--in', dest='input', required=True, help='feed JSON file')
     e.add_argument('--to', required=True, help='app public keyset JSON')
     e.add_argument('--sign', required=True, help='feed signing private keyset JSON')
-    e.add_argument('--sign-public', help='verify public keyset JSON (for kid)')
+    e.add_argument('--sign-public', required=True, help='verify public keyset JSON (for kid)')
     e.add_argument('--out', required=True)
     e.set_defaults(f=cmd_encrypt)
 
@@ -127,6 +146,12 @@ def main():
     d.add_argument('--key', required=True, help='app private keyset JSON')
     d.add_argument('--verify', required=True, help='verify public keyset JSON')
     d.set_defaults(f=cmd_decrypt)
+
+    pair = sub.add_parser('pair')
+    pair.add_argument('--url', required=True)
+    pair.add_argument('--verify', required=True, help='publisher public verification keyset')
+    pair.add_argument('--out', required=True)
+    pair.set_defaults(f=cmd_pair)
 
     args = p.parse_args()
     args.f(args)

@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [main]
+    branches: [main, integration/pairing-icon-volume, feature/sleep-monitoring]
   workflow_dispatch:
     inputs:
       release_version:
@@ -10,8 +10,14 @@ on:
         required: false
         default: ""
 
+      qualify_sleep:
+        description: "Run signed upgrade qualification only, no publication"
+        required: false
+        default: ""
+
 jobs:
   test:
+    if: github.event.inputs.qualify_sleep != 'backups' && github.event.inputs.qualify_sleep != 'state' && github.event.inputs.qualify_sleep != 'client'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,8 +26,19 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+          gradle-version: "8.7"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pillow==12.3.0 tink
+      - run: python tools/badge_icon.py --check
+      - run: python -m unittest discover -s tools -p 'test_feed_write.py' -v
+      - name: cold-start public-key regression in a fresh worker
+        run: gradle testDebugUnitTest --tests '*KeysColdStartTest' --no-daemon --max-workers=1
       - name: unit tests
-        run: gradle testDebugUnitTest --no-daemon
+        run: gradle testDebugUnitTest --no-daemon --max-workers=1 --refresh-dependencies
       - name: upload rendered UI screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -30,6 +47,7 @@ jobs:
           path: app/build/outputs/ui/*.png
 
   emulator:
+    if: github.event.inputs.qualify_sleep != 'yes' && github.event.inputs.qualify_sleep != 'backups' && github.event.inputs.qualify_sleep != 'state' && github.event.inputs.qualify_sleep != 'client' && (github.event_name != 'workflow_dispatch' || github.event.inputs.release_version == '')
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -39,9 +57,12 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+          gradle-version: "8.7"
       - name: build debug APK
         run: |
-          gradle assembleDebug --no-daemon
+          gradle assembleDebug --no-daemon --max-workers=1 --refresh-dependencies
           pkill -f GradleDaemon || true
       - name: qemu runtime deps (ubuntu-26.04 image lacks libpulse)
         run: sudo apt-get update && sudo apt-get install -y libpulse0
@@ -64,6 +85,11 @@ jobs:
         with:
           name: emulator-evidence
           path: |
+            emulator-logcat.txt
+            final-ui.xml
+            final-screen.png
+            full-feed-scheduled.txt
+            full-feed-canceled.txt
             main.png
             after-sync.png
             after-cancel.png
@@ -76,14 +102,22 @@ jobs:
             permission-denied.png
             after-reboot.png
             dumpsys-after-reboot.txt
+            ring-services.txt
+            media-player-1.txt
+            media-player-2.txt
+            after-snooze-services.txt
+            rering-services.txt
+            after-dismiss-services.txt
             ui.xml
             ui2.xml
             ui3.xml
             ui4.xml
+            uitap-fail.xml
+            uitap-fail.png
 
   release:
     runs-on: ubuntu-latest
-    needs: test  # experimental releases gate on unit tests only; emulator flow evidence is independent
+    needs: test  # Publication also requires independent signed-upgrade evidence.
     permissions:
       contents: write  # create prerelease + upload APK asset
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_version != ''
@@ -96,12 +130,21 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+          gradle-version: "8.7"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pillow==12.3.0
       - name: decode signing key
         run: |
           echo "${{ secrets.KOKOK_SIGNING_KEY_B64 }}" | base64 -d > /tmp/release.keystore
       - name: build signed release APK
         run: |
           sed -i "s/versionName = \"[^\"]*\"/versionName = \"$VERSION_NAME\"/" app/build.gradle.kts
+          python scripts/make_icons.py
+          python tools/badge_icon.py --check
           gradle assembleRelease --no-daemon \
             -Pandroid.injected.signing.store.file=/tmp/release.keystore \
             -Pandroid.injected.signing.store.password="${{ secrets.KOKOK_STORE_PASSWORD }}" \
@@ -116,6 +159,194 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION_NAME }}
+          target_commitish: ${{ github.sha }}
           prerelease: true
           files: kokok-v${{ env.VERSION_NAME }}.apk
-          body_path: sha256.txt
+          body: |
+            Experimental phone-first build with a local alarm-sound preview and device-sound chooser.
+            Default sound remains until an explicit choice; no system-volume change.
+            Installed-device chooser, chosen-tone playback, loudness and overnight reliability require verification.
+            Keep a backup alarm. Install over the existing app without uninstalling or clearing data.
+          append_body: true
+
+  signed-upgrade:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.qualify_sleep == 'yes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {cache-disabled: true, gradle-version: "8.7"}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install tink pillow==12.3.0
+      - name: build candidate with existing signer, no release publication
+        env:
+          KEY: ${{ secrets.KOKOK_SIGNING_KEY_B64 }}
+          STORE: ${{ secrets.KOKOK_STORE_PASSWORD }}
+          PASSWORD: ${{ secrets.KOKOK_KEY_PASSWORD }}
+        run: |
+          printf '%s' "$KEY" | base64 -d > /tmp/sleep-release.keystore
+          gradle assembleRelease --no-daemon --max-workers=1 \
+            -Pandroid.injected.signing.store.file=/tmp/sleep-release.keystore \
+            -Pandroid.injected.signing.store.password="$STORE" \
+            -Pandroid.injected.signing.key.alias=release \
+            -Pandroid.injected.signing.key.password="$PASSWORD"
+          cp app/build/outputs/apk/release/app-release.apk kokok-sleep-candidate.apk
+          git fetch origin 5e18e689d4dc5fa175147610d0c3b3eef0f23dbe
+          git worktree add /tmp/kokok-old-rollback 5e18e689d4dc5fa175147610d0c3b3eef0f23dbe
+          # Code rollback fixture: exact old source, only versionCode advanced to
+          # satisfy Android downgrade protection. Never published or delivered.
+          sed -i 's/versionCode = .*/versionCode = 7/' /tmp/kokok-old-rollback/app/build.gradle.kts
+          gradle -p /tmp/kokok-old-rollback assembleRelease --no-daemon --max-workers=1 \
+            -Pandroid.injected.signing.store.file=/tmp/sleep-release.keystore \
+            -Pandroid.injected.signing.store.password="$STORE" \
+            -Pandroid.injected.signing.key.alias=release \
+            -Pandroid.injected.signing.key.password="$PASSWORD"
+          cp /tmp/kokok-old-rollback/app/build/outputs/apk/release/app-release.apk kokok-code-rollback.apk
+          rm /tmp/sleep-release.keystore
+          curl -fL https://github.com/irvan-putra/kokok/releases/download/v0.1.4/kokok-v0.1.4.apk -o kokok-old-0.1.4.apk
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs kokok-sleep-candidate.apk
+          sha256sum kokok-sleep-candidate.apk
+      - name: enable accelerated emulator
+        run: |
+          sudo apt-get update && sudo apt-get install -y libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim -camera-back none -memory 2048
+          script: |
+            BOOT_SOUND_MODE=chosen python3 tools/sleep_upgrade_test.py
+            mv sleep-upgrade-evidence sleep-upgrade-evidence-chosen
+            adb shell locksettings clear --old 2468
+            adb uninstall com.vanipy.kokok
+            BOOT_SOUND_MODE=default python3 tools/sleep_upgrade_test.py
+            mv sleep-upgrade-evidence sleep-upgrade-evidence-default
+            sha256sum kokok-sleep-candidate.apk > frozen-candidate-sha256.txt
+      - name: upload qualification evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sleep-signed-upgrade-evidence-frozen
+          path: |
+            sleep-upgrade-evidence*/
+            frozen-candidate-sha256.txt
+            kokok-sleep-candidate.apk
+            uitap-fail.xml
+            uitap-fail.png
+          retention-days: 7
+
+  backups:
+    timeout-minutes: 12
+    if: github.event.inputs.qualify_sleep == 'backups'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Download exact published artifact
+        run: curl -fL https://github.com/irvan-putra/kokok/releases/download/v0.2.0/kokok-v0.2.0.apk -o published.apk
+      - name: Emulator prerequisites
+        run: |
+          sudo apt-get update && sudo apt-get install -y libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim -camera-back none -memory 2048
+          script: python3 tools/backup_alarm_test.py
+      - name: Preserve diagnostics
+        if: always()
+        run: |
+          mkdir -p backup-evidence
+          timeout 15 adb logcat -d > backup-evidence/cleanup-logcat.txt || true
+          timeout 15 adb shell dumpsys alarm > backup-evidence/cleanup-alarm-dump.txt || true
+          timeout 15 adb shell dumpsys activity services com.vanipy.kokok > backup-evidence/cleanup-services.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: published-backup-evidence
+          path: backup-evidence/
+
+  feed-state:
+    if: github.event.inputs.qualify_sleep == 'state'
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {cache-disabled: true, gradle-version: '8.7'}
+      - run: gradle testDebugUnitTest --tests '*FeedModelTest' --no-daemon --max-workers=1 --refresh-dependencies
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: feed-state-test-results
+          path: app/build/test-results/
+
+  client-upgrade:
+    if: github.event.inputs.qualify_sleep == 'client'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {cache-disabled: true, gradle-version: '8.7'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install tink pillow==12.3.0
+      - name: Build same-signer candidate only
+        env:
+          KEY: ${{ secrets.KOKOK_SIGNING_KEY_B64 }}
+          STORE: ${{ secrets.KOKOK_STORE_PASSWORD }}
+          PASSWORD: ${{ secrets.KOKOK_KEY_PASSWORD }}
+        run: |
+          python tools/badge_icon.py --check
+          printf '%s' "$KEY" | base64 -d > /tmp/client.keystore
+          gradle assembleRelease testDebugUnitTest --tests '*FeedModelTest' --no-daemon --max-workers=1 -Pandroid.injected.signing.store.file=/tmp/client.keystore -Pandroid.injected.signing.store.password="$STORE" -Pandroid.injected.signing.key.alias=release -Pandroid.injected.signing.key.password="$PASSWORD"
+          rm /tmp/client.keystore
+          cp app/build/outputs/apk/release/app-release.apk kokok-client-candidate.apk
+          sha256sum kokok-client-candidate.apk > candidate-sha256.txt
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs kokok-client-candidate.apk
+          curl -fL https://github.com/irvan-putra/kokok/releases/download/v0.2.0/kokok-v0.2.0.apk -o kokok-old-0.2.0.apk
+      - name: Emulator prerequisites
+        run: |
+          sudo apt-get update && sudo apt-get install -y libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim -camera-back none -memory 2048
+          script: python3 tools/client_upgrade_test.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qualified-client-candidate
+          path: |
+            client-upgrade-evidence/
+            kokok-client-candidate.apk
+            candidate-sha256.txt
+            app/build/test-results/
+            uitap-fail.xml
+            uitap-fail.png

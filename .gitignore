@@ -1,4 +1,2 @@
-.gradle/
-build/
-local.properties
-*.keystore
+__pycache__/
+*.pyc

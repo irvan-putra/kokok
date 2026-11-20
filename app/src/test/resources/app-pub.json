@@ -1,0 +1,15 @@
+{
+  "primaryKeyId": 1802791822,
+  "key": [
+    {
+      "keyData": {
+        "typeUrl": "type.googleapis.com/google.crypto.tink.EciesAeadHkdfPublicKey",
+        "value": "EkQKBAgCEAMSOhI4CjB0eXBlLmdvb2dsZWFwaXMuY29tL2dvb2dsZS5jcnlwdG8udGluay5BZXNHY21LZXkSAhAQGAEYAhog3kSMN8b3DGNFXAwrWsBRDku/VWfHNJFx+d2UdlbBDrsiIK1N8+B0Wxu/YeIwSYFWpv87vSc5Ivglgmxc39ybTDEI",
+        "keyMaterialType": "ASYMMETRIC_PUBLIC"
+      },
+      "status": "ENABLED",
+      "keyId": 1802791822,
+      "outputPrefixType": "TINK"
+    }
+  ]
+}

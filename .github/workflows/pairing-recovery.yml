@@ -1,0 +1,33 @@
+name: pairing recovery checks
+on:
+  push:
+    branches: [recovery/pairing-provisioning]
+  workflow_dispatch:
+jobs:
+  focused-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install tink pillow==12.3.0
+      - run: python tools/badge_icon.py --check
+      - run: python -m unittest discover -s tools -p 'test_feed_write.py' -v
+      - run: gradle testDebugUnitTest --no-daemon --max-workers=1 --refresh-dependencies
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pairing-recovery-evidence
+          path: |
+            app/build/reports/tests/testDebugUnitTest
+            app/build/test-results/testDebugUnitTest
+            app/build/outputs/ui/*.png
