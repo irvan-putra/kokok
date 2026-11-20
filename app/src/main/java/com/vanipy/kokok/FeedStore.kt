@@ -11,13 +11,14 @@ import org.json.JSONObject
  * these files or claim pre-unlock recovery without an actual migration gate.
  */
 object FeedStore {
-    data class StoredAlarm(
+    data class StoredAlarm @JvmOverloads constructor(
         val id: String,
         val label: String,
         val atMillis: Long,
         val snooze: Int,
         val status: String, // scheduled | fired | dismissed | canceled
         val local: Boolean = false, // created on-device (test alarm), not feed-managed
+        val snoozed: Boolean = false, // locally selected next ring, never reset by feed refresh
     )
 
     private fun prefs(context: Context) =
@@ -36,6 +37,7 @@ object FeedStore {
                 a.optInt("snooze", 9),
                 a.getString("status"),
                 a.optBoolean("local", false),
+                a.optBoolean("snoozed", false),
             )
         }
         return out
@@ -50,7 +52,8 @@ object FeedStore {
                 .put("atMillis", a.atMillis)
                 .put("snooze", a.snooze)
                 .put("status", a.status)
-                .put("local", a.local))
+                .put("local", a.local)
+                .put("snoozed", a.snoozed))
         }
         AlarmBootMirror.saveAlarms(context, obj.toString())
     }
