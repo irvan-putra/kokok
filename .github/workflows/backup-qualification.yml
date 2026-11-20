@@ -1,0 +1,36 @@
+name: published backup-alarm qualification
+on: workflow_dispatch
+jobs:
+  backups:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Download exact published artifact
+        run: curl -fL https://github.com/irvan-putra/kokok/releases/download/v0.2.0/kokok-v0.2.0.apk -o published.apk
+      - name: Emulator prerequisites
+        run: |
+          sudo apt-get update && sudo apt-get install -y libpulse0
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim -camera-back none -memory 2048
+          script: python3 tools/backup_alarm_test.py
+      - name: Preserve diagnostics
+        if: always()
+        run: |
+          adb logcat -d > backup-evidence/logcat.txt || true
+          adb shell dumpsys alarm > backup-evidence/alarm-dump.txt || true
+          adb shell dumpsys activity services com.vanipy.kokok > backup-evidence/services.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: published-backup-evidence
+          path: backup-evidence/
