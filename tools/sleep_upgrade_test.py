@@ -8,6 +8,12 @@ import hashlib,json,os,subprocess,time,xml.etree.ElementTree as ET
 from pathlib import Path
 P='com.vanipy.kokok'
 OUT=Path('sleep-upgrade-evidence');OUT.mkdir(exist_ok=True)
+import atexit
+def diagnostics():
+ for name,args in [('logcat.txt',['logcat','-d']),('last-user-state.txt',['shell','am','get-started-user-state','0'])]:
+  try:(OUT/name).write_bytes(subprocess.check_output(['adb',*args],stderr=subprocess.STDOUT,timeout=20))
+  except Exception:pass
+atexit.register(diagnostics)
 def cmd(*a):return subprocess.check_output(a,text=True,stderr=subprocess.STDOUT).strip()
 def adb(*a):return cmd('adb',*a)
 def wait(fn,seconds=120):
@@ -43,7 +49,7 @@ u=adb('shell','dumpsys','package',P)
 import re
 uid=re.search(r'userId=(\d+)',u)[1]
 root=ET.Element('map')
-fixtures={'feedUrl':'https://example.invalid/synthetic-alarm-feed','verifyKeyset':Path('/tmp/sleep-fixture-verify.json').read_text(),'appKeyset':Path('/tmp/sleep-fixture-key.json').read_text(),'alarms':json.dumps({'upgrade-fixture':{'id':'upgrade-fixture','label':'synthetic upgrade alarm','atMillis':int(time.time()*1000)+240000,'snooze':1,'status':'scheduled','local':True}})}
+fixtures={'feedUrl':'https://example.invalid/synthetic-alarm-feed','verifyKeyset':Path('/tmp/sleep-fixture-verify.json').read_text(),'appKeyset':Path('/tmp/sleep-fixture-key.json').read_text(),'alarms':'{}'}
 for k,v in fixtures.items():ET.SubElement(root,'string',name=k).text=v
 ET.SubElement(root,'long',name='lastAppliedRev',value='72')
 Path('/tmp/sleep-upgrade-feed.xml').write_bytes(ET.tostring(root))
@@ -59,11 +65,18 @@ for src,name in [('/tmp/sleep-upgrade-feed.xml','feed.xml'),('/tmp/sleep-upgrade
 adb('shell','restorecon','-RF',f'/data/user_de/0/{P}')
 adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(3)
 # Actual old app reads the fixture and public key without repair/reset.
-before=parse(getprefs());assert before['appKeyset']==fixtures['appKeyset'];assert before['lastAppliedRev']=='72'
+assert parse(getprefs())['appKeyset']==fixtures['appKeyset']
 sound_before=adb('shell','cat',dp+'/alarm_sound.xml')
 screenshot('old-signed-ui.png')
 # Set a secure lock before upgrade so subsequent boot really remains pre-unlock.
 adb('shell','locksettings','set-pin','2468')
+# Let the ACTUAL old app create and schedule an alarm through its normal UI.
+# The new build must retain both its record and AlarmManager delivery.
+tap('test alarm (rings in 60 s)')
+before=parse(getprefs());assert before['lastAppliedRev']=='72'
+old_alarms=json.loads(before['alarms']);assert len(old_alarms)==1
+alarm_id=next(iter(old_alarms));assert old_alarms[alarm_id]['status']=='scheduled'
+assert 'com.vanipy.kokok.RING' in adb('shell','dumpsys','alarm')
 # PackageManager enforces same signing identity; NEVER use -d or uninstall.
 adb('install','-r','kokok-sleep-candidate.apk')
 adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(4)
@@ -75,17 +88,18 @@ screenshot('upgraded-signed-ui.png')
 reboot()
 state=adb('shell','am','get-started-user-state','0');assert 'RUNNING_LOCKED' in state,state
 (OUT/'preunlock-user-state.txt').write_text(state)
-wait(service,300)
+wait(service,180)
 assert 'RUNNING_LOCKED' in adb('shell','am','get-started-user-state','0')
 (OUT/'preunlock-ring-services.txt').write_text(adb('shell','dumpsys','activity','services',P))
 screenshot('preunlock-ringing.png')
+(OUT/'preunlock-media-player.txt').write_text(adb('shell','dumpsys','media.player'))
 locked=parse(getprefs());assert locked['appKeyset']==before['appKeyset'];assert locked['lastAppliedRev']=='72'
-assert json.loads(locked['alarms'])['upgrade-fixture']['status']=='fired'
+assert json.loads(locked['alarms'])[alarm_id]['status']=='fired'
 # Unlock disposable emulator and exercise unchanged dismiss.
 adb('shell','input','keyevent','82');adb('shell','input','text','2468');adb('shell','input','keyevent','66')
 wait(lambda:'RUNNING_UNLOCKED' in adb('shell','am','get-started-user-state','0'),60)
 adb('shell','cmd','statusbar','expand-notifications');time.sleep(2);tap('dismiss');wait(lambda:not service(),30)
-assert json.loads(parse(getprefs())['alarms'])['upgrade-fixture']['status']=='dismissed'
+assert json.loads(parse(getprefs())['alarms'])[alarm_id]['status']=='dismissed'
 assert adb('shell','cat',dp+'/alarm_sound.xml')==sound_before
 (OUT/'result.txt').write_text('PASS actual signed0.1.4 -> same-signer candidate in-place upgrade; synthetic key/pairing/revision/alarms/sound retained; API34 secure-lock reboot reached RUNNING_LOCKED and existing alarm fired before unlock; dismiss stopped service. No real sleep provider or physical-phone accuracy proof.\n')
 print((OUT/'result.txt').read_text())
