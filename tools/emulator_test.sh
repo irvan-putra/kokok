@@ -74,7 +74,10 @@ python3 tools/uitap.py "sync now"
 sleep 8
 python3 tools/assert_feed_state.py 2 absent
 adb shell dumpsys alarm > full-feed-canceled.txt
-if grep -q 'tag=\*walarm\*:com.vanipy.kokok.RING' full-feed-canceled.txt; then echo "FAIL: exact ring alarm remains after empty feed"; exit 1; fi
+# Android 14 dumps canceled alarms under Removal history as well. Only the
+# active store before that section establishes a pending delivery.
+awk '/Removal history:/{exit} {print}' full-feed-canceled.txt > active-feed-canceled.txt
+if grep -q 'tag=\*walarm\*:com.vanipy.kokok.RING' active-feed-canceled.txt; then echo "FAIL: exact ring alarm remains after empty feed"; exit 1; fi
 adb shell dumpsys alarm | grep -B1 -A3 'ci-feed-1' > feed-canceled.txt || echo "ci-feed-1 not in dumpsys (expected after cancel)" > feed-canceled.txt
 adb exec-out screencap -p > after-cancel.png
 adb shell dumpsys alarm | grep -A2 com.vanipy.kokok || true

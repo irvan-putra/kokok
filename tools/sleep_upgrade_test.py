@@ -45,9 +45,8 @@ adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(4)
 subprocess.run(['python3','tools/feed_write.py','gen-app','--private','/tmp/sleep-fixture-key.json','--public','/tmp/sleep-fixture-pub.json'],check=True)
 subprocess.run(['python3','tools/feed_write.py','gen-sign','--private','/tmp/sleep-fixture-sign.json','--public','/tmp/sleep-fixture-verify.json'],check=True)
 adb('shell','am','force-stop',P)
-u=adb('shell','dumpsys','package',P)
-import re
-uid=re.search(r'userId=(\d+)',u)[1]
+uid=adb('shell','stat','-c','%u',f'/data/user_de/0/{P}').strip()
+assert uid.isdigit() and int(uid)>=10000, 'unexpected package directory owner'
 root=ET.Element('map')
 fixtures={'feedUrl':'https://example.invalid/synthetic-alarm-feed','verifyKeyset':Path('/tmp/sleep-fixture-verify.json').read_text(),'appKeyset':Path('/tmp/sleep-fixture-key.json').read_text(),'alarms':'{}'}
 for k,v in fixtures.items():ET.SubElement(root,'string',name=k).text=v
