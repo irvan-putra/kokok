@@ -68,6 +68,23 @@ class UiRenderTest {
     }
 
     @Test
+    fun historyCollapsedAndExpandedRendersWithoutChangingState() {
+        val c = RuntimeEnvironment.getApplication()
+        c.feedUrl = "https://example.test/feed"; c.verifyKeyset = "{}"
+        val now = System.currentTimeMillis()
+        val rows = linkedMapOf(
+            "fictional-future" to FeedStore.StoredAlarm("fictional-future", "fictional future wake-up", now + 3600000, 9, "scheduled"),
+            "fictional-old" to FeedStore.StoredAlarm("fictional-old", "fictional dismissed test", now - 3600000, 9, "dismissed", local = true))
+        FeedStore.saveAlarms(c, rows)
+        val a = Robolectric.buildActivity(MainActivity::class.java).create().resume().visible().get()
+        val root = a.findViewById<View>(android.R.id.content)
+        render(root, File("build/outputs/ui/history-collapsed.png"))
+        root.findViewWithTag<View>("alarm-history-toggle").performClick()
+        render(root, File("build/outputs/ui/history-expanded.png"))
+        org.junit.Assert.assertEquals(rows, FeedStore.alarms(c))
+    }
+
+    @Test
     fun alarmActivityRendersRinging() {
         val context = RuntimeEnvironment.getApplication()
         val alarms = LinkedHashMap<String, FeedStore.StoredAlarm>()
