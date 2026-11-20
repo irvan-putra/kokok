@@ -46,8 +46,6 @@ jobs:
           path: app/build/outputs/ui/*.png
 
   emulator:
-    # Phone-first experimental release requested by the owner. Existing runtime
-    # evidence remains separate; do not delay release with another emulator round.
     if: github.event.inputs.qualify_sleep != 'yes' && (github.event_name != 'workflow_dispatch' || github.event.inputs.release_version == '')
     runs-on: ubuntu-latest
     needs: test
@@ -118,7 +116,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: test  # Owner requested phone-first experimental validation, not another emulator round.
+    needs: test  # Publication also requires independent signed-upgrade evidence.
     permissions:
       contents: write  # create prerelease + upload APK asset
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_version != ''
@@ -171,10 +169,6 @@ jobs:
           append_body: true
 
   signed-upgrade:
-    strategy:
-      fail-fast: false
-      matrix:
-        sound_mode: [chosen, default]
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.qualify_sleep == 'yes'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -228,14 +222,22 @@ jobs:
           arch: x86_64
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim -camera-back none -memory 2048
-          script: BOOT_SOUND_MODE=${{ matrix.sound_mode }} python3 tools/sleep_upgrade_test.py
+          script: |
+            BOOT_SOUND_MODE=chosen python3 tools/sleep_upgrade_test.py
+            mv sleep-upgrade-evidence sleep-upgrade-evidence-chosen
+            adb shell locksettings clear --old 2468
+            adb uninstall com.vanipy.kokok
+            BOOT_SOUND_MODE=default python3 tools/sleep_upgrade_test.py
+            mv sleep-upgrade-evidence sleep-upgrade-evidence-default
+            sha256sum kokok-sleep-candidate.apk > frozen-candidate-sha256.txt
       - name: upload qualification evidence only
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sleep-signed-upgrade-evidence-${{ matrix.sound_mode }}
+          name: sleep-signed-upgrade-evidence-frozen
           path: |
-            sleep-upgrade-evidence/
+            sleep-upgrade-evidence*/
+            frozen-candidate-sha256.txt
             kokok-sleep-candidate.apk
             uitap-fail.xml
             uitap-fail.png
