@@ -45,5 +45,5 @@ object AlarmBootMirror {
         check(edit.commit())
         return uri
     }
-    fun prepare(c: Context) { if (unlocked(c)) { alarms(c); sound(c) } }
+    fun prepare(c: Context) { if (unlocked(c)) { alarms(c); sound(c); AlarmBootAudio.refresh(c) } }
 }

@@ -14,10 +14,12 @@ object AlarmRinger {
 
     fun start(context: Context) {
         if (player != null) return
-        val uri = AlarmSound.playbackUri(context)
+        var next: MediaPlayer? = null
         try {
-            player = MediaPlayer().apply {
-                setDataSource(context, uri)
+            val created = MediaPlayer()
+            next = created
+            created.apply {
+                AlarmBootAudio.setDataSource(context, this)
                 // alarm audio attributes: routes to the alarm volume channel, not
                 // media volume, and lets the OS treat it as an alarm
                 setAudioAttributes(AudioAttributes.Builder()
@@ -29,7 +31,9 @@ object AlarmRinger {
                 start()
                 android.util.Log.i("KokokAlarmAudio", "playback started; looping=true")
             }
+            player = next
         } catch (e: Exception) {
+            next?.release()
             player = null // sound is best-effort; the full-screen UI still alarms
         }
         // vibration runs regardless of the sound path

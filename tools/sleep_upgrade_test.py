@@ -112,6 +112,11 @@ adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(4)
 after=parse(getprefs())
 for k in ['appKeyset','verifyKeyset','feedUrl','lastAppliedRev','alarms']:assert after[k]==before[k],k
 assert adb('shell','cat',dp+'/alarm_sound.xml')==sound_before
+# Cache must contain the exact selected sound, not a bundled fallback.
+source_audio=subprocess.check_output(['adb','exec-out','content','read','--uri',chosen_uri])
+cached_audio=subprocess.check_output(['adb','exec-out','cat',f'/data/user_de/0/{P}/files/alarm-tone.bin'])
+assert source_audio and hashlib.sha256(source_audio).digest()==hashlib.sha256(cached_audio).digest()
+(OUT/'chosen-tone-cache-proof.txt').write_text('Exact selected provider bytes match private direct-boot cache SHA256='+hashlib.sha256(cached_audio).hexdigest()+'; no playback preview before reboot.\n')
 screenshot('upgraded-signed-ui.png')
 adb('logcat','-c')
 # New app's BootReceiver must recover a pre-existing scheduled alarm before unlock.

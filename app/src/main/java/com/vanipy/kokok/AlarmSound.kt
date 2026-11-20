@@ -14,8 +14,9 @@ object AlarmSound {
         require(uri.scheme == "content") { "Choose a device alarm sound" }
         require(prefs(context).edit().putString("uri", uri.toString()).commit()) { "Sound could not be saved" }
         AlarmBootMirror.sound(context)
+        AlarmBootAudio.refresh(context)
     }
-    fun useDefault(context: Context) { prefs(context).edit().remove("uri").commit(); AlarmBootMirror.sound(context) }
+    fun useDefault(context: Context) { prefs(context).edit().remove("uri").commit(); AlarmBootMirror.sound(context); AlarmBootAudio.refresh(context) }
     fun label(context: Context): String {
         val uri = selected(context)
         val actual = uri ?: RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_ALARM)
