@@ -73,7 +73,10 @@ Path('/tmp/sleep-upgrade-feed.xml').write_bytes(ET.tostring(root))
 wait(lambda:adb('shell','settings','get','system','alarm_alert').startswith('content://'),180)
 chosen_uri=adb('shell','settings','get','system','alarm_alert')
 (OUT/'chosen-tone-uri.txt').write_text(chosen_uri)
-sound_root=ET.Element('map');ET.SubElement(sound_root,'string',name='uri').text=chosen_uri
+sound_root=ET.Element('map')
+if os.environ.get('BOOT_SOUND_MODE','chosen') == 'chosen':
+ ET.SubElement(sound_root,'string',name='uri').text=chosen_uri
+(OUT/'sound-mode.txt').write_text(os.environ.get('BOOT_SOUND_MODE','chosen'))
 sound=ET.tostring(sound_root,encoding='unicode')
 Path('/tmp/sleep-upgrade-sound.xml').write_text(sound)
 dp=f'/data/user/0/{P}/shared_prefs'

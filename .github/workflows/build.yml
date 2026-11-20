@@ -171,6 +171,10 @@ jobs:
           append_body: true
 
   signed-upgrade:
+    strategy:
+      fail-fast: false
+      matrix:
+        sound_mode: [chosen, default]
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.qualify_sleep == 'yes'
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -224,12 +228,12 @@ jobs:
           arch: x86_64
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim -camera-back none -memory 2048
-          script: python3 tools/sleep_upgrade_test.py
+          script: BOOT_SOUND_MODE=${{ matrix.sound_mode }} python3 tools/sleep_upgrade_test.py
       - name: upload qualification evidence only
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sleep-signed-upgrade-evidence
+          name: sleep-signed-upgrade-evidence-${{ matrix.sound_mode }}
           path: |
             sleep-upgrade-evidence/
             kokok-sleep-candidate.apk
