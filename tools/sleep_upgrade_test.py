@@ -131,10 +131,16 @@ locked=parse(adb('shell','cat',f'/data/user_de/0/{P}/shared_prefs/alarm-boot-mir
 assert json.loads(locked['alarms'])[alarm_id]['status']=='fired'
 assert not any('keyset' in k.lower() or k=='feedUrl' for k in locked)
 assert 'playback started; looping=true' in adb('logcat','-d','-s','KokokAlarmAudio:I','*:S')
-# Unlock disposable emulator and exercise unchanged dismiss.
-adb('shell','input','keyevent','82');adb('shell','input','text','2468');adb('shell','input','keyevent','66')
+# Dismiss via the actual pre-unlock full-screen action, then bring up the
+# secure PIN UI. Typing immediately into the alarm window is not an unlock.
+tap('dismiss');wait(lambda:not service(),30)
+adb('shell','input','keyevent','224')
+adb('shell','input','swipe','540','1700','540','400','400');time.sleep(2)
+screenshot('before-pin-entry.png')
+adb('shell','uiautomator','dump','/data/local/tmp/pin-ui.xml')
+(OUT/'before-pin-entry.xml').write_text(adb('shell','cat','/data/local/tmp/pin-ui.xml'))
+adb('shell','input','text','2468');adb('shell','input','keyevent','66')
 wait(lambda:'RUNNING_UNLOCKED' in adb('shell','am','get-started-user-state','0'),60)
-adb('shell','cmd','statusbar','expand-notifications');time.sleep(2);tap('dismiss');wait(lambda:not service(),30)
 adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(2)
 after_unlock=parse(getprefs())
 assert json.loads(after_unlock['alarms'])[alarm_id]['status']=='dismissed'
