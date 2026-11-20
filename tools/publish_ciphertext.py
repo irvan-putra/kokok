@@ -8,6 +8,7 @@ from sign_ciphertext import sign_ciphertext
 API='https://api.github.com/repos/irvan-putra/kokok'
 BRANCH='alarm-feed'
 FILE='feed.json'
+IDENTITY={'name':'irvan-putra','email':'irvan.putra@gmail.com'}
 
 def main():
     # Values passed in env, never interpolated as shell code or printed.
@@ -31,12 +32,12 @@ def main():
             if x.code!=404:raise
         else:raise ValueError('unexpected existing feed branch')
         tree=api('/git/trees',{'tree':[{'path':FILE,'mode':'100644','type':'blob','content':data}]},'POST')
-        commit=api('/git/commits',{'message':'Publish encrypted alarm feed','tree':tree['sha'],'parents':[]},'POST')
+        commit=api('/git/commits',{'message':'Publish encrypted alarm feed','tree':tree['sha'],'parents':[],'author':IDENTITY,'committer':IDENTITY},'POST')
         api('/git/refs',{'ref':'refs/heads/'+BRANCH,'sha':commit['sha']},'POST')
     else:
         # Contents API updates are compare-and-swap; concurrent revisions must
         # fail rather than overwrite an unexpected publisher update.
-        api('/contents/'+FILE,{'message':'Update encrypted alarm feed','branch':BRANCH,'sha':current['sha'],'content':base64.b64encode(data.encode()).decode()},'PUT')
+        api('/contents/'+FILE,{'message':'Update encrypted alarm feed','branch':BRANCH,'sha':current['sha'],'content':base64.b64encode(data.encode()).decode(),'author':IDENTITY,'committer':IDENTITY},'PUT')
     latest=api('/contents/'+FILE+'?ref='+BRANCH)
     if base64.b64decode(latest['content']).decode()!=data:raise ValueError('published readback differs')
     print('Encrypted envelope published and API readback verified. CDN propagation and phone application remain unverified.')
