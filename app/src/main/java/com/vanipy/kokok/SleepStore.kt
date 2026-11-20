@@ -14,7 +14,9 @@ object SleepStore {
     // the app's default context, which intentionally uses device-protected alarms.
     internal fun file(c: Context) = java.io.File(c.applicationInfo.credentialProtectedDataDir, "files/sleep-private.json")
     private class PrivatePrefs(val c: Context) {
-        private fun load(): JSONObject = try { JSONObject(android.util.AtomicFile(file(c)).readFully().toString(Charsets.UTF_8)) } catch (e: Exception) { JSONObject() }
+        private fun load(): JSONObject = try { JSONObject(android.util.AtomicFile(file(c)).readFully().toString(Charsets.UTF_8)) }
+            catch (e: java.io.FileNotFoundException) { JSONObject() }
+            catch (e: Exception) { JSONObject().put("status", "Stored sleep data could not be read. Monitoring is off; no estimate invented.") }
         fun getString(k: String, d: String) = load().optString(k, d)
         fun getBoolean(k: String, d: Boolean) = load().optBoolean(k, d)
         fun getLong(k: String, d: Long) = load().optLong(k, d)

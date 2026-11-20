@@ -88,6 +88,10 @@ class SleepRestoreReceiver : BroadcastReceiver() {
         if (intent.action !in listOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_USER_UNLOCKED)) return
         if (!SleepStore.enabled(context)) return
         val result = goAsync()
-        SleepMonitoring.register(context) { result.finish() }
+        val finished = java.util.concurrent.atomic.AtomicBoolean(false)
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        val finish = Runnable { if (finished.compareAndSet(false, true)) result.finish() }
+        handler.postDelayed(finish, 8_000)
+        SleepMonitoring.register(context) { handler.removeCallbacks(finish); finish.run() }
     }
 }
