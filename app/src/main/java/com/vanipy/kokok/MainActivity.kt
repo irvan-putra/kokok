@@ -413,6 +413,7 @@ class MainActivity : Activity() {
             }
             player.prepare()
             player.start()
+            android.util.Log.i("KokokAlarmAudio", "preview playback started")
             previewHandler.postDelayed(stopPreviewTask, 10_000)
         } catch (e: Exception) {
             stopSoundPreview()

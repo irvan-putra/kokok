@@ -82,6 +82,16 @@ adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(3)
 assert parse(getprefs())['appKeyset']==fixtures['appKeyset']
 sound_before=adb('shell','cat',dp+'/alarm_sound.xml')
 screenshot('old-signed-ui.png')
+# Establish fixture validity independently of the locked-boot path. Keep original
+# settings/provider diagnostics so an unset emulator default cannot masquerade
+# as a product regression. These contain only synthetic emulator state.
+(OUT/'unlocked-default-setting.txt').write_text(adb('shell','settings','get','system','alarm_alert'))
+(OUT/'unlocked-ringtone-provider.txt').write_text(adb('shell','content','query','--uri','content://media/internal/audio/media','--projection','_id:title:is_alarm'))
+tap('preview alarm sound (up to 10 s)')
+time.sleep(1)
+(OUT/'old-unlocked-media-player.txt').write_text(adb('shell','dumpsys','media.player'))
+tap('stop sound preview')
+adb('shell','input','swipe','540','500','540','1600','300')
 # Set a secure lock before upgrade so subsequent boot really remains pre-unlock.
 adb('shell','locksettings','set-pin','2468')
 # Let the ACTUAL old app create and schedule an alarm through its normal UI.
@@ -100,6 +110,14 @@ after=parse(getprefs())
 for k in ['appKeyset','verifyKeyset','feedUrl','lastAppliedRev','alarms']:assert after[k]==before[k],k
 assert adb('shell','cat',dp+'/alarm_sound.xml')==sound_before
 screenshot('upgraded-signed-ui.png')
+adb('logcat','-c')
+tap('preview alarm sound (up to 10 s)')
+time.sleep(1)
+(OUT/'candidate-unlocked-media-player.txt').write_text(adb('shell','dumpsys','media.player'))
+preview_log=adb('logcat','-d','-s','KokokAlarmAudio:I','*:S')
+(OUT/'candidate-unlocked-preview-log.txt').write_text(preview_log)
+assert 'preview playback started' in preview_log, 'selected synthetic URI did not play while unlocked; fixture validity unresolved'
+tap('stop sound preview')
 # New app's BootReceiver must recover a pre-existing scheduled alarm before unlock.
 reboot()
 state=adb('shell','am','get-started-user-state','0');assert 'RUNNING_LOCKED' in state,state
