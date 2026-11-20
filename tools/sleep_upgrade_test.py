@@ -42,7 +42,7 @@ def wait(fn,seconds=120):
 def screenshot(name):
  with (OUT/name).open('wb') as f:subprocess.run(['adb','exec-out','screencap','-p'],stdout=f,check=True)
 def getprefs():
- return adb('shell','cat',f'/data/user_de/0/{P}/shared_prefs/feed.xml')
+ return adb('shell','cat',f'/data/user/0/{P}/shared_prefs/feed.xml')
 def parse(xml):
  return {e.attrib['name']:e.text if e.tag=='string' else e.attrib.get('value') for e in ET.fromstring(xml)}
 def reboot():
@@ -60,7 +60,7 @@ adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(4)
 subprocess.run(['python3','tools/feed_write.py','gen-app','--private','/tmp/sleep-fixture-key.json','--public','/tmp/sleep-fixture-pub.json'],check=True)
 subprocess.run(['python3','tools/feed_write.py','gen-sign','--private','/tmp/sleep-fixture-sign.json','--public','/tmp/sleep-fixture-verify.json'],check=True)
 adb('shell','am','force-stop',P)
-uid=adb('shell','stat','-c','%u',f'/data/user_de/0/{P}').strip()
+uid=adb('shell','stat','-c','%u',f'/data/user/0/{P}').strip()
 assert uid.isdigit() and int(uid)>=10000, 'unexpected package directory owner'
 root=ET.Element('map')
 fixtures={'feedUrl':'https://example.invalid/synthetic-alarm-feed','verifyKeyset':Path('/tmp/sleep-fixture-verify.json').read_text(),'appKeyset':Path('/tmp/sleep-fixture-key.json').read_text(),'alarms':'{}'}
@@ -69,14 +69,14 @@ ET.SubElement(root,'long',name='lastAppliedRev',value='72')
 Path('/tmp/sleep-upgrade-feed.xml').write_bytes(ET.tostring(root))
 sound='<map><string name="uri">content://settings/system/alarm_alert</string></map>'
 Path('/tmp/sleep-upgrade-sound.xml').write_text(sound)
-dp=f'/data/user_de/0/{P}/shared_prefs'
+dp=f'/data/user/0/{P}/shared_prefs'
 for src,name in [('/tmp/sleep-upgrade-feed.xml','feed.xml'),('/tmp/sleep-upgrade-sound.xml','alarm_sound.xml')]:
  adb('push',src,'/data/local/tmp/'+name)
  adb('shell','mkdir','-p',dp)
  adb('shell','cp','/data/local/tmp/'+name,dp+'/'+name)
  adb('shell','chown',f'{uid}:{uid}',dp+'/'+name)
  adb('shell','chmod','600',dp+'/'+name)
-adb('shell','restorecon','-RF',f'/data/user_de/0/{P}')
+adb('shell','restorecon','-RF',f'/data/user/0/{P}')
 adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(3)
 # Actual old app reads the fixture and public key without repair/reset.
 assert parse(getprefs())['appKeyset']==fixtures['appKeyset']

@@ -46,7 +46,7 @@ xml = ('<?xml version="1.0" encoding="utf-8" standalone="yes" ?>\n<map>'
        + '</map>\n')
 open('feed.xml','w').write(xml)
 import os
-for d in ['/data/user_de/0/com.vanipy.kokok/shared_prefs']:
+for d in ['/data/user/0/com.vanipy.kokok/shared_prefs']:
     subprocess.run(['adb','shell','run-as','com.vanipy.kokok','mkdir','-p',d], check=True)
     subprocess.run('cat feed.xml | adb shell "run-as com.vanipy.kokok sh -c \'cat > %s/feed.xml\'"' % d, shell=True, check=True)
     r = subprocess.run(['adb','shell','run-as','com.vanipy.kokok','cat',d + '/feed.xml'],

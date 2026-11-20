@@ -27,6 +27,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           cache-disabled: true
+          gradle-version: "8.7"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -59,6 +60,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           cache-disabled: true
+          gradle-version: "8.7"
       - name: build debug APK
         run: |
           gradle assembleDebug --no-daemon --max-workers=1 --refresh-dependencies
@@ -131,6 +133,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           cache-disabled: true
+          gradle-version: "8.7"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -176,7 +179,8 @@ jobs:
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: gradle/actions/setup-gradle@v4
-        with: {cache-disabled: true}
+        with: {cache-disabled: true
+          gradle-version: "8.7"}
       - uses: actions/setup-python@v5
         with: {python-version: '3.11'}
       - run: pip install tink pillow==12.3.0

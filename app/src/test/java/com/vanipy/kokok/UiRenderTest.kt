@@ -84,7 +84,7 @@ class UiRenderTest {
     @Test
     fun pairingReviewRendersAtPhoneAndTabletWidths() {
         val context = RuntimeEnvironment.getApplication()
-        context.createDeviceProtectedStorageContext().getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
+        context.getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
         val pub = org.json.JSONObject(File("src/test/resources/sign-pub.json").readText())
         val config = org.json.JSONObject().put("feedUrl", "https://example.org/feed.json")
             .put("verifyKeyset", pub).toString()

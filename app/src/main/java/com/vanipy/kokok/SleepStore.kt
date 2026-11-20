@@ -10,8 +10,8 @@ import java.util.Locale
 
 /** Sleep data never goes in the direct-boot alarm store or encrypted inbound feed. */
 object SleepStore {
-    // App default is credential protected. Existing alarm stores explicitly use
-    // their original device-protected context and require no data migration.
+    // Sleep and existing alarm state are separate credential-private files.
+    // Actual signed 0.1.4 runtime determines alarm custody, not manifest intent.
     internal fun file(c: Context): java.io.File {
         check(!c.isDeviceProtectedStorage) { "Sleep records require credential-protected context" }
         return java.io.File(c.filesDir, "sleep-private.json")

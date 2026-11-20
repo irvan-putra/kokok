@@ -34,8 +34,8 @@ class SleepMonitoringTest {
         assertFalse(c.createDeviceProtectedStorageContext().getSharedPreferences("sleep-private", 0).contains("enabled"))
         assertTrue(SleepStore.summary(c).contains("No sleep segment received"))
     }
-    @Test fun existingDeviceProtectedCustodyPreservedWithoutMigration() {
-        val dp = c.createDeviceProtectedStorageContext()
+    @Test fun actualCredentialProtectedCustodyPreservedWithoutMigration() {
+        val dp = c
         val seed = "synthetic-existing-key"
         dp.getSharedPreferences("feed",0).edit().putString("appKeyset",seed).putLong("lastAppliedRev",42).commit()
         val alarms = mapOf("fixture" to FeedStore.StoredAlarm("fixture", "synthetic",2000000000000,9,"scheduled"))
@@ -47,8 +47,8 @@ class SleepMonitoringTest {
         SleepStore.clear(c)
         assertEquals(before,dp.getSharedPreferences("feed",0).all)
         assertEquals(alarms,FeedStore.alarms(c))
-        assertFalse(c.getSharedPreferences("feed",0).contains("appKeyset"))
-        try { SleepStore.file(dp);fail("device-protected sleep path accepted") } catch(expected: IllegalStateException) {}
+        assertEquals(seed,c.getSharedPreferences("feed",0).getString("appKeyset",null))
+        try { SleepStore.file(c.createDeviceProtectedStorageContext());fail("device-protected sleep path accepted") } catch(expected: IllegalStateException) {}
     }
     @Test fun deduplicatesPriorDayAndRetainsThirtyWindows() {
         SleepStore.setEnabled(c, true)
