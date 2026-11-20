@@ -196,6 +196,7 @@ jobs:
             -Pandroid.injected.signing.key.alias=release \
             -Pandroid.injected.signing.key.password="$PASSWORD"
           cp app/build/outputs/apk/release/app-release.apk kokok-sleep-candidate.apk
+          git fetch origin 5e18e689d4dc5fa175147610d0c3b3eef0f23dbe
           git worktree add /tmp/kokok-old-rollback 5e18e689d4dc5fa175147610d0c3b3eef0f23dbe
           # Code rollback fixture: exact old source, only versionCode advanced to
           # satisfy Android downgrade protection. Never published or delivered.
