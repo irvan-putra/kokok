@@ -15,7 +15,16 @@ on:
         required: false
         default: ""
 
+permissions:
+  contents: read
+
 jobs:
+  consistency:
+    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@b3c5d671164812ea06fb44857b0f0a423ade0d66
+    with:
+      app: kokok
+      published: false
+
   test:
     if: github.event.inputs.qualify_sleep != 'backups' && github.event.inputs.qualify_sleep != 'state' && github.event.inputs.qualify_sleep != 'client'
     runs-on: ubuntu-latest
@@ -117,9 +126,9 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: test  # Publication also requires independent signed-upgrade evidence.
+    needs: [test, consistency]  # Signed-upgrade evidence remains a separate release requirement.
     permissions:
-      contents: write  # create prerelease + upload APK asset
+      contents: read  # No publication in candidate-build job
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_version != ''
     env:
       VERSION_NAME: ${{ github.event.inputs.release_version }}
@@ -154,20 +163,58 @@ jobs:
       - name: verify and hash
         run: |
           $ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs "kokok-v${VERSION_NAME}.apk"
-          sha256sum "kokok-v${VERSION_NAME}.apk" | tee sha256.txt
+          sha256sum "kokok-v${VERSION_NAME}.apk" | tee SHA256SUMS
+      - name: upload signed candidate for preventive byte gate
+        uses: actions/upload-artifact@v4
+        with:
+          name: kokok-release-candidate
+          path: |
+            kokok-v${{ env.VERSION_NAME }}.apk
+            SHA256SUMS
+          retention-days: 1
+
+  candidate-bytes:
+    needs: release
+    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@b3c5d671164812ea06fb44857b0f0a423ade0d66
+    with:
+      app: kokok
+      published: false
+      candidate_apk_artifact: kokok-release-candidate
+      candidate_version: ${{ github.event.inputs.release_version }}
+
+  publish:
+    needs: [release, candidate-bytes]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION_NAME: ${{ github.event.inputs.release_version }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: kokok-release-candidate, path: dist}
       - name: publish prerelease
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION_NAME }}
           target_commitish: ${{ github.sha }}
           prerelease: true
-          files: kokok-v${{ env.VERSION_NAME }}.apk
+          files: |
+            dist/kokok-v${{ env.VERSION_NAME }}.apk
+            dist/SHA256SUMS
           body: |
             Experimental phone-first build with a local alarm-sound preview and device-sound chooser.
             Default sound remains until an explicit choice; no system-volume change.
             Installed-device chooser, chosen-tone playback, loudness and overnight reliability require verification.
             Keep a backup alarm. Install over the existing app without uninstalling or clearing data.
           append_body: true
+
+  verify-published:
+    needs: publish
+    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@b3c5d671164812ea06fb44857b0f0a423ade0d66
+    with:
+      app: kokok
+      published: true
 
   signed-upgrade:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.qualify_sleep == 'yes'
