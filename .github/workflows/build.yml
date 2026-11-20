@@ -196,6 +196,16 @@ jobs:
             -Pandroid.injected.signing.key.alias=release \
             -Pandroid.injected.signing.key.password="$PASSWORD"
           cp app/build/outputs/apk/release/app-release.apk kokok-sleep-candidate.apk
+          git worktree add /tmp/kokok-old-rollback 5e18e689d4dc5fa175147610d0c3b3eef0f23dbe
+          # Code rollback fixture: exact old source, only versionCode advanced to
+          # satisfy Android downgrade protection. Never published or delivered.
+          sed -i 's/versionCode = .*/versionCode = 7/' /tmp/kokok-old-rollback/app/build.gradle.kts
+          gradle -p /tmp/kokok-old-rollback assembleRelease --no-daemon --max-workers=1 \
+            -Pandroid.injected.signing.store.file=/tmp/sleep-release.keystore \
+            -Pandroid.injected.signing.store.password="$STORE" \
+            -Pandroid.injected.signing.key.alias=release \
+            -Pandroid.injected.signing.key.password="$PASSWORD"
+          cp /tmp/kokok-old-rollback/app/build/outputs/apk/release/app-release.apk kokok-code-rollback.apk
           rm /tmp/sleep-release.keystore
           curl -fL https://github.com/irvan-putra/kokok/releases/download/v0.1.4/kokok-v0.1.4.apk -o kokok-old-0.1.4.apk
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs kokok-sleep-candidate.apk

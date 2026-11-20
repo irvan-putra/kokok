@@ -36,7 +36,7 @@ class AlarmBootMirrorTest {
   assertEquals("dismissed",FeedStore.alarms(c)["a"]!!.status)
   assertEquals("synthetic-key",cp.getString("appKeyset",null))
   assertEquals("synthetic-url",cp.getString("feedUrl",null))
-  assertEquals(42,cp.getLong("lastAppliedRev",0))
+  assertEquals(42L,cp.getLong("lastAppliedRev",0))
   assertFalse(boot.getBoolean("pending",true))
   assertTrue(cp.getString("alarms","")!!.contains("dismissed")) // old app schema retained
  }

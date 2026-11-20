@@ -122,5 +122,14 @@ after_unlock=parse(getprefs())
 assert json.loads(after_unlock['alarms'])[alarm_id]['status']=='dismissed'
 for k in ['appKeyset','verifyKeyset','feedUrl','lastAppliedRev']:assert after_unlock[k]==before[k],k
 assert adb('shell','cat',dp+'/alarm_sound.xml')==sound_before
+# Android blocks lowering versionCode for signed release apps. This isolated
+# artifact is old0.1.4 source with only versionCode advanced, not a new release.
+adb('install','-r','kokok-code-rollback.apk')
+adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(3)
+rolled=parse(getprefs())
+for k in ['appKeyset','verifyKeyset','feedUrl','lastAppliedRev','alarms']:assert rolled[k]==after_unlock[k],k
+assert adb('shell','cat',dp+'/alarm_sound.xml')==sound_before
+screenshot('code-rollback-old-ui.png')
+(OUT/'rollback-scope.txt').write_text('Old0.1.4 code with versionCode7 only for Android anti-downgrade compatibility; original exact signed0.1.4 was used for initial upgrade. Not published. Original credential preferences readable and unchanged after code rollback. Direct installation of a lower versionCode is not supported.\n')
 (OUT/'result.txt').write_text('PASS actual signed0.1.4 -> same-signer candidate in-place upgrade; synthetic key/pairing/revision/alarms/sound retained; API34 secure-lock reboot reached RUNNING_LOCKED and existing alarm fired before unlock; dismiss stopped service. No real sleep provider or physical-phone accuracy proof.\n')
 print((OUT/'result.txt').read_text())
