@@ -17,6 +17,7 @@ on:
 
 jobs:
   test:
+    if: github.event.inputs.qualify_sleep != 'backups'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -244,6 +245,7 @@ jobs:
           retention-days: 7
 
   backups:
+    timeout-minutes: 12
     if: github.event.inputs.qualify_sleep == 'backups'
     runs-on: ubuntu-latest
     steps:
@@ -269,9 +271,10 @@ jobs:
       - name: Preserve diagnostics
         if: always()
         run: |
-          adb logcat -d > backup-evidence/logcat.txt || true
-          adb shell dumpsys alarm > backup-evidence/alarm-dump.txt || true
-          adb shell dumpsys activity services com.vanipy.kokok > backup-evidence/services.txt || true
+          mkdir -p backup-evidence
+          timeout 15 adb logcat -d > backup-evidence/cleanup-logcat.txt || true
+          timeout 15 adb shell dumpsys alarm > backup-evidence/cleanup-alarm-dump.txt || true
+          timeout 15 adb shell dumpsys activity services com.vanipy.kokok > backup-evidence/cleanup-services.txt || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
