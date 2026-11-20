@@ -67,7 +67,14 @@ fixtures={'feedUrl':'https://example.invalid/synthetic-alarm-feed','verifyKeyset
 for k,v in fixtures.items():ET.SubElement(root,'string',name=k).text=v
 ET.SubElement(root,'long',name='lastAppliedRev',value='72')
 Path('/tmp/sleep-upgrade-feed.xml').write_bytes(ET.tostring(root))
-sound='<map><string name="uri">content://settings/system/alarm_alert</string></map>'
+# A newly booted test image can still have no default and an empty media
+# provider. Wait for an actual selected system tone; do not warm it by preview
+# or turn a null symbolic default into product audio evidence.
+wait(lambda:adb('shell','settings','get','system','alarm_alert').startswith('content://'),180)
+chosen_uri=adb('shell','settings','get','system','alarm_alert')
+(OUT/'chosen-tone-uri.txt').write_text(chosen_uri)
+sound_root=ET.Element('map');ET.SubElement(sound_root,'string',name='uri').text=chosen_uri
+sound=ET.tostring(sound_root,encoding='unicode')
 Path('/tmp/sleep-upgrade-sound.xml').write_text(sound)
 dp=f'/data/user/0/{P}/shared_prefs'
 for src,name in [('/tmp/sleep-upgrade-feed.xml','feed.xml'),('/tmp/sleep-upgrade-sound.xml','alarm_sound.xml')]:
@@ -87,11 +94,7 @@ screenshot('old-signed-ui.png')
 # as a product regression. These contain only synthetic emulator state.
 (OUT/'unlocked-default-setting.txt').write_text(adb('shell','settings','get','system','alarm_alert'))
 (OUT/'unlocked-ringtone-provider.txt').write_text(adb('shell','content','query','--uri','content://media/internal/audio/media','--projection','_id:title:is_alarm'))
-tap('preview alarm sound (up to 10 s)')
-time.sleep(1)
-(OUT/'old-unlocked-media-player.txt').write_text(adb('shell','dumpsys','media.player'))
-tap('stop sound preview')
-adb('shell','input','swipe','540','500','540','1600','300')
+# No preview here: selected-tone playback must work cold after reboot.
 # Set a secure lock before upgrade so subsequent boot really remains pre-unlock.
 adb('shell','locksettings','set-pin','2468')
 # Let the ACTUAL old app create and schedule an alarm through its normal UI.
@@ -111,13 +114,6 @@ for k in ['appKeyset','verifyKeyset','feedUrl','lastAppliedRev','alarms']:assert
 assert adb('shell','cat',dp+'/alarm_sound.xml')==sound_before
 screenshot('upgraded-signed-ui.png')
 adb('logcat','-c')
-tap('preview alarm sound (up to 10 s)')
-time.sleep(1)
-(OUT/'candidate-unlocked-media-player.txt').write_text(adb('shell','dumpsys','media.player'))
-preview_log=adb('logcat','-d','-s','KokokAlarmAudio:I','*:S')
-(OUT/'candidate-unlocked-preview-log.txt').write_text(preview_log)
-assert 'preview playback started' in preview_log, 'selected synthetic URI did not play while unlocked; fixture validity unresolved'
-tap('stop sound preview')
 # New app's BootReceiver must recover a pre-existing scheduled alarm before unlock.
 reboot()
 state=adb('shell','am','get-started-user-state','0');assert 'RUNNING_LOCKED' in state,state
