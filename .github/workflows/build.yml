@@ -371,7 +371,7 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk kokok-client-candidate.apk
           sha256sum kokok-client-candidate.apk > candidate-sha256.txt
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs kokok-client-candidate.apk
-          curl -fL https://github.com/irvan-putra/kokok/releases/download/v0.2.0/kokok-v0.2.0.apk -o kokok-old-0.2.0.apk
+          curl -fL https://github.com/irvan-putra/kokok/releases/download/v0.1.4/kokok-v0.1.4.apk -o kokok-old-0.1.4.apk
       - name: Emulator prerequisites
         run: |
           sudo apt-get update && sudo apt-get install -y libpulse0

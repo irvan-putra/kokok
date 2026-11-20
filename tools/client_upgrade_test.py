@@ -50,8 +50,8 @@ def reboot():
  adb('root');adb('wait-for-device')
 def tap(text):subprocess.run(['python3','tools/uitap.py',text],check=True)
 def service():return 'AlarmRingService' in adb('shell','dumpsys','activity','services',P)
-old=Path('kokok-old-0.2.0.apk')
-assert hashlib.sha256(old.read_bytes()).hexdigest()=='8550ba9651f5ee2bbd5ed08c893d8121a4331f33bf196648b1c879d631a60ce5'
+old=Path('kokok-old-0.1.4.apk')
+assert hashlib.sha256(old.read_bytes()).hexdigest()=='1d2e94f5f1be0ee2365cc2a87061faac874c75cd08ceffc40ec4f62ce0164f26'
 adb('install','-r',str(old));adb('shell','pm','grant',P,'android.permission.POST_NOTIFICATIONS')
 adb('root');adb('wait-for-device')
 adb('shell','wm','size','1080x1920');adb('shell','wm','density','420')
@@ -124,5 +124,5 @@ assert json.loads(mirror['alarms'])[alarm_id]==record
 adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(1)
 assert json.loads(parse(getprefs())['alarms'])[alarm_id]==record
 screenshot('snoozed-preserved.png')
-(OUT/'result.txt').write_text('PASS actual signed0.2.0 in-place update to same-signer0.2.1 candidate. Synthetic pairing/key/revision, selected sound and scheduled alarm record unchanged; existing OS alarm rang after update; real snooze action set marker in original/mirror and survived reopen. No real phone/feed or critical wakeup. No cold-boot or provider-accuracy claim.\n')
+(OUT/'result.txt').write_text('PASS actual signed0.1.4 in-place update to same-signer0.2.1 candidate. Synthetic pairing/key/revision, selected sound and scheduled alarm record unchanged; existing OS alarm rang after update; real snooze action set marker in original/mirror and survived reopen. No real phone/feed or critical wakeup. No cold-boot or provider-accuracy claim.\n')
 print((OUT/'result.txt').read_text())
