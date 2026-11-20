@@ -47,6 +47,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AlarmBootMirror.prepare(this)
         // Physical volume keys target alarm volume only while this screen is active.
         volumeControlStream = AudioManager.STREAM_ALARM
         val scroll = ScrollView(this)

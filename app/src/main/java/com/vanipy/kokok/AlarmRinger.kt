@@ -27,6 +27,7 @@ object AlarmRinger {
                 isLooping = true
                 prepare()
                 start()
+                android.util.Log.i("KokokAlarmAudio", "playback started; looping=true")
             }
         } catch (e: Exception) {
             player = null // sound is best-effort; the full-screen UI still alarms

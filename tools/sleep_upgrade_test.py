@@ -109,13 +109,18 @@ assert 'RUNNING_LOCKED' in adb('shell','am','get-started-user-state','0')
 (OUT/'preunlock-ring-services.txt').write_text(adb('shell','dumpsys','activity','services',P))
 screenshot('preunlock-ringing.png')
 (OUT/'preunlock-media-player.txt').write_text(adb('shell','dumpsys','media.player'))
-locked=parse(getprefs());assert locked['appKeyset']==before['appKeyset'];assert locked['lastAppliedRev']=='72'
+locked=parse(adb('shell','cat',f'/data/user_de/0/{P}/shared_prefs/alarm-boot-mirror.xml'))
 assert json.loads(locked['alarms'])[alarm_id]['status']=='fired'
+assert not any('keyset' in k.lower() or k=='feedUrl' for k in locked)
+assert 'playback started; looping=true' in adb('logcat','-d','-s','KokokAlarmAudio:I','*:S')
 # Unlock disposable emulator and exercise unchanged dismiss.
 adb('shell','input','keyevent','82');adb('shell','input','text','2468');adb('shell','input','keyevent','66')
 wait(lambda:'RUNNING_UNLOCKED' in adb('shell','am','get-started-user-state','0'),60)
 adb('shell','cmd','statusbar','expand-notifications');time.sleep(2);tap('dismiss');wait(lambda:not service(),30)
-assert json.loads(parse(getprefs())['alarms'])[alarm_id]['status']=='dismissed'
+adb('shell','am','start','-n',P+'/.MainActivity');time.sleep(2)
+after_unlock=parse(getprefs())
+assert json.loads(after_unlock['alarms'])[alarm_id]['status']=='dismissed'
+for k in ['appKeyset','verifyKeyset','feedUrl','lastAppliedRev']:assert after_unlock[k]==before[k],k
 assert adb('shell','cat',dp+'/alarm_sound.xml')==sound_before
 (OUT/'result.txt').write_text('PASS actual signed0.1.4 -> same-signer candidate in-place upgrade; synthetic key/pairing/revision/alarms/sound retained; API34 secure-lock reboot reached RUNNING_LOCKED and existing alarm fired before unlock; dismiss stopped service. No real sleep provider or physical-phone accuracy proof.\n')
 print((OUT/'result.txt').read_text())

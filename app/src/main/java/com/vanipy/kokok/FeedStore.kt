@@ -24,7 +24,7 @@ object FeedStore {
         context.getSharedPreferences("feed", Context.MODE_PRIVATE)
 
     fun alarms(context: Context): MutableMap<String, StoredAlarm> {
-        val raw = prefs(context).getString("alarms", "{}") ?: "{}"
+        val raw = AlarmBootMirror.alarms(context)
         val obj = JSONObject(raw)
         val out = LinkedHashMap<String, StoredAlarm>()
         for (key in obj.keys()) {
@@ -52,7 +52,7 @@ object FeedStore {
                 .put("status", a.status)
                 .put("local", a.local))
         }
-        prefs(context).edit().putString("alarms", obj.toString()).apply()
+        AlarmBootMirror.saveAlarms(context, obj.toString())
     }
 
     var Context.lastAppliedRev: Long
