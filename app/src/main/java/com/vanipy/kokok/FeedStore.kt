@@ -6,7 +6,7 @@ import org.json.JSONObject
 
 /**
  * Persistent alarm + sync state in SharedPreferences. The application sets
- * defaultToDeviceProtectedStorage=true, so this is readable before first unlock
+ * an explicit device-protected context, so this is readable before first unlock
  * (direct boot) which BOOT_COMPLETED/LOCKED_BOOT_COMPLETED rescheduling needs.
  */
 object FeedStore {
@@ -20,7 +20,7 @@ object FeedStore {
     )
 
     private fun prefs(context: Context) =
-        context.getSharedPreferences("feed", Context.MODE_PRIVATE)
+        context.createDeviceProtectedStorageContext().getSharedPreferences("feed", Context.MODE_PRIVATE)
 
     fun alarms(context: Context): MutableMap<String, StoredAlarm> {
         val raw = prefs(context).getString("alarms", "{}") ?: "{}"

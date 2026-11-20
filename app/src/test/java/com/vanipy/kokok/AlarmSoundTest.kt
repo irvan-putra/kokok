@@ -27,7 +27,7 @@ class AlarmSoundTest {
         if (v is ViewGroup) (0 until v.childCount).flatMap { views(v.getChildAt(it)) } else emptyList()
     @Test fun defaultRemainsUntilExplicitChoiceAndDoesNotChangeAlarmState() {
         val c = RuntimeEnvironment.getApplication()
-        c.getSharedPreferences("alarm_sound", Context.MODE_PRIVATE).edit().clear().commit()
+        c.createDeviceProtectedStorageContext().getSharedPreferences("alarm_sound", Context.MODE_PRIVATE).edit().clear().commit()
         val audio = c.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val vol = audio.getStreamVolume(AudioManager.STREAM_ALARM)
         val def = RingtoneManager.getActualDefaultRingtoneUri(c, RingtoneManager.TYPE_ALARM)

@@ -27,7 +27,7 @@ class PairingStateTest {
 
     @Test fun replacementKeepsRevisionPhoneKeyAndAlarmState() {
         val context = RuntimeEnvironment.getApplication()
-        context.getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
+        context.createDeviceProtectedStorageContext().getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
         context.feedUrl = "https://example.org/old"
         context.lastAppliedRev = 42
         context.appKeyset = "synthetic-state-marker"
@@ -46,7 +46,7 @@ class PairingStateTest {
 
     @Test fun cancelShareReviewLeavesExistingPairingUntouched() {
         val context = RuntimeEnvironment.getApplication()
-        context.getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
+        context.createDeviceProtectedStorageContext().getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
         context.feedUrl = "https://example.org/old"
         context.verifyKeyset = "old-public-placeholder"
         context.lastAppliedRev = 19

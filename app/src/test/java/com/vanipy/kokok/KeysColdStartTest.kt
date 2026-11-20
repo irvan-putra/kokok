@@ -24,7 +24,7 @@ class KeysColdStartTest {
 
     @Test fun firstCryptoActionExportsOnlyPublicKeyAndKeepsItAcrossReopen() {
         val context = RuntimeEnvironment.getApplication()
-        context.getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
+        context.createDeviceProtectedStorageContext().getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
         // Deliberately no FeedCrypto reference or Tink registration before this.
         val first = Keys.publicKeysetJson(context)
         val saved = context.appKeyset
@@ -53,7 +53,7 @@ class KeysColdStartTest {
 
     @Test fun unreadableExistingKeyDoesNotCrashRenderOrReplacePrivateState() {
         val context = RuntimeEnvironment.getApplication()
-        context.getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
+        context.createDeviceProtectedStorageContext().getSharedPreferences("feed", Context.MODE_PRIVATE).edit().clear().commit()
         context.appKeyset = "synthetic-unreadable-state"
         val a = Robolectric.buildActivity(MainActivity::class.java).create().resume().visible().get()
         val all = views(a.findViewById(android.R.id.content))

@@ -6,7 +6,7 @@ import android.net.Uri
 
 /** Local choice only. No write to the phone's global default or alarm stream. */
 object AlarmSound {
-    private fun prefs(context: Context) = context.getSharedPreferences("alarm_sound", Context.MODE_PRIVATE)
+    private fun prefs(context: Context) = context.createDeviceProtectedStorageContext().getSharedPreferences("alarm_sound", Context.MODE_PRIVATE)
     fun selected(context: Context): Uri? = prefs(context).getString("uri", null)?.let(Uri::parse)
     fun playbackUri(context: Context): Uri = selected(context)
         ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
