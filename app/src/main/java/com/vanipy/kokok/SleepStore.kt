@@ -10,8 +10,33 @@ import java.util.Locale
 
 /** Sleep data never goes in the direct-boot alarm store or encrypted inbound feed. */
 object SleepStore {
-    private fun prefs(c: Context) = c.createCredentialProtectedStorageContext()
-        .getSharedPreferences("sleep-private", Context.MODE_PRIVATE)
+    // Credential-protected path is public ApplicationInfo API24+. Do not rely on
+    // the app's default context, which intentionally uses device-protected alarms.
+    internal fun file(c: Context) = java.io.File(c.applicationInfo.credentialProtectedDataDir, "files/sleep-private.json")
+    private class PrivatePrefs(val c: Context) {
+        private fun load(): JSONObject = try { JSONObject(android.util.AtomicFile(file(c)).readFully().toString(Charsets.UTF_8)) } catch (e: Exception) { JSONObject() }
+        fun getString(k: String, d: String) = load().optString(k, d)
+        fun getBoolean(k: String, d: Boolean) = load().optBoolean(k, d)
+        fun getLong(k: String, d: Long) = load().optLong(k, d)
+        fun getInt(k: String, d: Int) = load().optInt(k, d)
+        fun edit() = Editor(c, load())
+    }
+    private class Editor(val c: Context, val data: JSONObject) {
+        fun putString(k: String,v: String) = apply { data.put(k,v) }
+        fun putBoolean(k: String,v: Boolean) = apply { data.put(k,v) }
+        fun putLong(k: String,v: Long) = apply { data.put(k,v) }
+        fun putInt(k: String,v: Int) = apply { data.put(k,v) }
+        fun remove(k: String) = apply { data.remove(k) }
+        fun apply() {
+            check(unlocked(c))
+            val target = file(c); target.parentFile!!.mkdirs()
+            val atomic = android.util.AtomicFile(target)
+            val stream = atomic.startWrite()
+            try { stream.write(data.toString().toByteArray(Charsets.UTF_8)); atomic.finishWrite(stream) }
+            catch (e: Exception) { atomic.failWrite(stream); throw e }
+        }
+    }
+    private fun prefs(c: Context) = PrivatePrefs(c)
     fun unlocked(c: Context) = c.getSystemService(UserManager::class.java).isUserUnlocked
     fun enabled(c: Context) = unlocked(c) && prefs(c).getBoolean("enabled", false)
     fun status(c: Context) = if (unlocked(c)) prefs(c).getString("status", "Off. No sleep data collected by kokok.")!! else "Unlock phone to view sleep records."

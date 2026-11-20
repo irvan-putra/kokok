@@ -30,7 +30,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("com.google.android.gms:play-services-location:21.4.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.crypto.tink:tink-android:1.13.0")
 
     testImplementation("junit:junit:4.13.2")

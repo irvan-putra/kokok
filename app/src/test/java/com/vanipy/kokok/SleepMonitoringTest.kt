@@ -23,13 +23,14 @@ import java.io.File
 class SleepMonitoringTest {
     private val c get() = RuntimeEnvironment.getApplication() as Context
     @Before fun reset() {
-        c.createCredentialProtectedStorageContext().getSharedPreferences("sleep-private", 0).edit().clear().commit()
+        SleepStore.file(c).delete()
         c.createDeviceProtectedStorageContext().getSharedPreferences("sleep-private", 0).edit().clear().commit()
     }
     @Test fun offByDefaultAndNotInAlarmStore() {
         assertFalse(SleepStore.enabled(c))
         SleepStore.setEnabled(c, true)
         assertTrue(SleepStore.enabled(c))
+        assertTrue(SleepStore.file(c).canonicalPath.startsWith(c.applicationInfo.credentialProtectedDataDir))
         assertFalse(c.createDeviceProtectedStorageContext().getSharedPreferences("sleep-private", 0).contains("enabled"))
         assertTrue(SleepStore.summary(c).contains("No sleep segment received"))
     }

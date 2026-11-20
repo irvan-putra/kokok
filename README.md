@@ -113,7 +113,7 @@ Kokok keeps at most30 estimated windows and the last confidence observation in a
 
 Sleep subscription restoration runs only after unlock/normal boot or app replacement if the user previously enabled it, separate from direct-boot alarm recovery. Previously detected segments returned at registration are deduplicated, not presented as newly measured nights.
 
-Dependency source conflict: the Sleep guide currently names25.0.0/minSdk29. Google's Maven repository provides21.4.0 with library/transitive minSdk23 and Sleep API classes, while25.0.0 is absent. This project keeps application minSdk26 and gates only the optional sleep feature at29+, without a manifest minSdk override. Build and runtime tests must still qualify this experiment. The API reference documents legacy permissions on older APIs, but enabling sleep below29 is not part of this initial version.
+Dependency source conflict: the Sleep guide currently names25.0.0/minSdk29. Google's Maven repository provides21.4.0 with library/transitive minSdk23 and Sleep API classes, while25.0.0 is absent. The21.4.0 artifact uses Kotlin2.3 metadata, incompatible with the existing Kotlin2.0.20 compiler; this experiment pins21.3.0 rather than silently upgrading the compiler. This project keeps application minSdk26 and gates only the optional sleep feature at29+, without a manifest minSdk override. Build and runtime tests must still qualify this experiment. The API reference documents legacy permissions on older APIs, but enabling sleep below29 is not part of this initial version.
 
 Sources:
 - https://developers.google.com/location-context/sleep
