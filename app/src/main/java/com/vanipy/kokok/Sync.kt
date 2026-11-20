@@ -21,6 +21,9 @@ object Sync {
     private const val JOB_ID = 41
 
     fun scheduleJob(context: Context) {
+        // Pairing and feed keys stay credential-private. Resume network work
+        // only after unlock; local alarm recovery never depends on this job.
+        if (!context.getSystemService(android.os.UserManager::class.java).isUserUnlocked) return
         val js = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val job = JobInfo.Builder(JOB_ID, ComponentName(context, SyncJobService::class.java))
             .setPeriodic(30 * 60_000L)

@@ -40,4 +40,23 @@ class AlarmBootMirrorTest {
   assertFalse(boot.getBoolean("pending",true))
   assertTrue(cp.getString("alarms","")!!.contains("dismissed")) // old app schema retained
  }
+ @Test fun lockedBootComponentsAndNetworkPermissionArePresent() {
+  val c=RuntimeEnvironment.getApplication() as Context
+  val pm=c.packageManager
+  val flags=android.content.pm.PackageManager.MATCH_DIRECT_BOOT_AWARE or android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE
+  val service=pm.getServiceInfo(android.content.ComponentName(c,AlarmRingService::class.java),flags)
+  val activity=pm.getActivityInfo(android.content.ComponentName(c,AlarmActivity::class.java),flags)
+  assertTrue(service.directBootAware)
+  assertTrue(activity.directBootAware)
+  val pkg=pm.getPackageInfo(c.packageName,android.content.pm.PackageManager.GET_PERMISSIONS)
+  assertTrue(pkg.requestedPermissions.contains("android.permission.ACCESS_NETWORK_STATE"))
+ }
+ @Test fun lockedBootDoesNotScheduleCredentialPrivateNetworkWork() {
+  val c=RuntimeEnvironment.getApplication() as Context
+  shadowOf(c.getSystemService(UserManager::class.java)).setUserUnlocked(false)
+  val js=c.getSystemService(android.app.job.JobScheduler::class.java)
+  js.cancelAll()
+  Sync.scheduleJob(c)
+  assertTrue(js.allPendingJobs.isEmpty())
+ }
 }

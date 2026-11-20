@@ -6,8 +6,7 @@ import android.content.Intent
 
 /**
  * Re-applies stored alarm state after boot (LOCKED_BOOT_COMPLETED arrives before
- * first unlock on FBE devices; device-protected storage makes FeedStore readable
- * then), and after wall-clock time/timezone changes. Past-due alarms ring
+ * first unlock on FBE devices; the minimal alarm mirror is readable then), and after wall-clock time/timezone changes. Past-due alarms ring
  * immediately no matter how late. Fired/dismissed
  * alarms are never re-rung.
  */
