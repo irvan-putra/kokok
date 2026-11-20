@@ -101,3 +101,26 @@ not hardware-backed Keystore storage. Backup is disabled. The example writer's
 private-key JSON paths are an interface, not a safe production custody solution.
 Protected publisher custody and endpoint approval remain separate operational
 choices. Never publish keys, plaintext alarms, or personal pairing configuration.
+
+
+## Optional estimated sleep (0.2.0 experiment)
+
+Sleep monitoring is off by default. Enable it on the phone and grant Android's Physical activity permission. Initial support is SDK29+ with available Google Play services; older Android26-28 alarm support is unchanged. Actual provider registration and later valid events, not just installed services, determine availability. If registration fails or data is missing, Kokok says so rather than inventing sleep. No microphone, camera, fine-location or background-location permission is added. Sleep estimates never change alarm times.
+
+The provider estimates sleep from phone signals. It cannot prove sleep, REM, stages, attention or medical health. A still phone in darkness is not proof its owner sleeps. Daily segments may arrive only after high-confidence awakening; classification intervals are not guaranteed. Power-saving, missing sensors and unavailable Play services can leave gaps. Existing alarms and dismissal work independently.
+
+Kokok keeps at most30 estimated windows and the last confidence observation in a separate credential-protected private store, unavailable before unlock. It does not add telemetry or upload sleep records. Copy private summary is explicit and puts the summary on the clipboard, where the user decides whether to share. Stop unregisters; if provider removal fails this is visible and local callbacks are still ignored. Clear records removes Kokok sleep data, not alarms or provider history. Backup is disabled in the app manifest. Provider on-device inference does not establish a blanket no-collection claim for Google Play services.
+
+Sleep subscription restoration runs only after unlock/normal boot or app replacement if the user previously enabled it, separate from direct-boot alarm recovery. Previously detected segments returned at registration are deduplicated, not presented as newly measured nights.
+
+Dependency source conflict: the Sleep guide currently names25.0.0/minSdk29. Google's Maven repository provides21.4.0 with library/transitive minSdk23 and Sleep API classes, while25.0.0 is absent. This project keeps application minSdk26 and gates only the optional sleep feature at29+, without a manifest minSdk override. Build and runtime tests must still qualify this experiment. The API reference documents legacy permissions on older APIs, but enabling sleep below29 is not part of this initial version.
+
+Sources:
+- https://developers.google.com/location-context/sleep
+- https://developers.google.com/android/reference/com/google/android/gms/location/ActivityRecognitionClient
+- https://developers.google.com/android/reference/com/google/android/gms/location/SleepSegmentEvent
+- https://developers.google.com/android/reference/com/google/android/gms/common/GoogleApiAvailability
+- https://dl.google.com/dl/android/maven2/com/google/android/gms/play-services-location/maven-metadata.xml
+- https://developers.google.com/android/guides/play-data-disclosure (covers only the named core SDKs, not a full Sleep SDK privacy guarantee)
+
+Tests use synthetic timestamps and labels only. Host/render or emulator results are not real overnight sleep accuracy or physical-device support evidence.

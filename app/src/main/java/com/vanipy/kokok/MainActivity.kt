@@ -79,6 +79,61 @@ class MainActivity : Activity() {
         handlePairingShare(intent)
     }
 
+    private val sleepPermissionRequest = 42
+    private fun sleepRefresh() { runOnUiThread { if (!isFinishing && !isDestroyed) render() } }
+    private fun enableSleep() {
+        val no = SleepMonitoring.unavailable(this)
+        if (no != null) { Toast.makeText(this, no, Toast.LENGTH_LONG).show(); return }
+        if (!SleepMonitoring.permission(this)) {
+            requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), sleepPermissionRequest)
+            return
+        }
+        SleepStore.setEnabled(this, true)
+        SleepMonitoring.register(this) { sleepRefresh() }
+        render()
+    }
+    override fun onRequestPermissionsResult(code: Int, permissions: Array<out String>, results: IntArray) {
+        super.onRequestPermissionsResult(code, permissions, results)
+        if (code == sleepPermissionRequest) {
+            if (SleepMonitoring.permission(this)) enableSleep()
+            else { SleepStore.status(this, "Off. Physical activity permission declined; alarms unchanged."); render() }
+        }
+    }
+    private fun renderSleep() {
+        root.addView(text("estimated sleep (optional)", 20f, Color.BLACK, bold = true, topPad = 32))
+        root.addView(text("Google Play services uses phone light and movement to estimate sleep. Stillness in the dark is not proof of sleep. No REM, stages or medical measurement. No mic, camera, location permission or alarm-time changes. This adds a Google provider dependency, not a blanket promise about its data practices.", 14f, Color.DKGRAY))
+        if (!SleepStore.unlocked(this)) {
+            root.addView(text("Unlock phone to view or change sleep estimates.", 16f, Color.DKGRAY))
+            return
+        }
+        val no = SleepMonitoring.unavailable(this)
+        if (no != null) root.addView(text(no, 16f, Color.DKGRAY))
+        if (SleepStore.enabled(this) && !SleepMonitoring.permission(this))
+            SleepStore.status(this, "Physical activity permission missing. Sleep updates unavailable; stored estimates retained.")
+        root.addView(text(SleepStore.summary(this), 14f, Color.DKGRAY).apply { setTextIsSelectable(true); tag = "sleep-summary" })
+        if (no == null) root.addView(button(if (SleepStore.enabled(this)) "retry sleep subscription" else "enable sleep estimates") {
+            if (SleepStore.enabled(this)) SleepMonitoring.register(this) { sleepRefresh() }
+            else AlertDialog.Builder(this).setTitle("Enable estimated sleep?")
+                .setMessage("Android asks for Physical activity permission. Google Play services estimates sleep from phone signals; it may return missing or delayed data. Kokok stores up to 30 windows privately after unlock plus the latest likelihood. No upload or automatic sharing by kokok. Only Copy summary puts your estimates on the clipboard. Alarms stay unchanged. You can stop and clear records here.")
+                .setNegativeButton("Cancel", null).setPositiveButton("Continue") { _, _ -> enableSleep() }.show()
+        })
+        root.addView(button("stop sleep estimates") {
+            SleepStore.setEnabled(this, false)
+            SleepMonitoring.unregister(this) { sleepRefresh() }
+            render()
+        })
+        root.addView(button("copy private sleep summary") {
+            val clipboard = getSystemService(android.content.ClipboardManager::class.java)
+            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("kokok estimated sleep", SleepStore.summary(this)))
+            Toast.makeText(this, "Sleep summary copied. Share only where you choose.", Toast.LENGTH_LONG).show()
+        })
+        root.addView(button("clear stored sleep estimates") {
+            AlertDialog.Builder(this).setTitle("Clear sleep estimates?")
+                .setMessage("Deletes only sleep records from kokok, not alarms or provider history. Stop estimates first if you do not want future updates.")
+                .setNegativeButton("Cancel", null).setPositiveButton("Clear records") { _, _ -> SleepStore.clear(this); render() }.show()
+        })
+    }
+
     private fun handlePairingShare(incoming: Intent?) {
         if (incoming?.action == Intent.ACTION_SEND && incoming.type == "text/plain") {
             val value = incoming.getStringExtra(Intent.EXTRA_TEXT) ?: return
@@ -265,6 +320,8 @@ class MainActivity : Activity() {
             AlarmSound.useDefault(this)
             render()
         })
+
+        renderSleep()
 
         root.addView(text("pairing", 20f, Color.BLACK, bold = true, topPad = 32))
         root.addView(text(if (feedUrl.isEmpty()) "not paired" else "publisher configured; check last sync and alarm list above", 16f, Color.DKGRAY))
