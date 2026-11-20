@@ -13,7 +13,22 @@ def diagnostics():
  for name,args in [('logcat.txt',['logcat','-d']),('last-user-state.txt',['shell','am','get-started-user-state','0']),('alarm-dump.txt',['shell','dumpsys','alarm'])]:
   try:(OUT/name).write_bytes(subprocess.check_output(['adb',*args],stderr=subprocess.STDOUT,timeout=20))
   except Exception:pass
+def storage_diagnostics():
+ # Test keys only; retain structure and fingerprints rather than key contents.
+ report={}
+ for zone in ['user','user_de']:
+  directory=f'/data/{zone}/0/{P}/shared_prefs'
+  try:
+   report[zone]={'listing':adb('shell','ls','-la',directory)}
+   for name in ['feed.xml','alarm_sound.xml']:
+    try:
+     values=parse(adb('shell','cat',directory+'/'+name))
+     report[zone][name]={k:(hashlib.sha256(v.encode()).hexdigest() if 'keyset' in k.lower() else v) for k,v in values.items()}
+    except Exception as e:report[zone][name]=type(e).__name__
+  except Exception as e:report[zone]={'error':type(e).__name__}
+ (OUT/'storage-diagnostic.json').write_text(json.dumps(report,indent=2))
 atexit.register(diagnostics)
+atexit.register(storage_diagnostics)
 def cmd(*a):return subprocess.check_output(a,text=True,stderr=subprocess.STDOUT).strip()
 def adb(*a):return cmd('adb',*a)
 def wait(fn,seconds=120):
