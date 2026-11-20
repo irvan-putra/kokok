@@ -33,6 +33,7 @@ import java.util.Locale
 
 class MainActivity : Activity() {
 
+    private var historyExpanded = false
     private var soundPreview: android.media.MediaPlayer? = null
     private val previewHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val stopPreviewTask = Runnable { stopSoundPreview() }
@@ -252,20 +253,28 @@ class MainActivity : Activity() {
 
         root.addView(text("alarms", 20f, Color.BLACK, bold = true, topPad = 32))
         val stored = FeedStore.alarms(this).values.sortedBy { it.atMillis }
-        if (stored.isEmpty()) {
-            root.addView(text("none. paired alarms appear here once applied.", 16f, Color.DKGRAY))
-        }
-        for (a in stored) {
+        val history = stored.filter { AlarmListGrouping.isHistory(it.status) }
+        val active = stored.filterNot { AlarmListGrouping.isHistory(it.status) }
+        fun alarmRow(a: FeedStore.StoredAlarm): TextView {
             val mark = when (a.status) {
                 "scheduled" -> "\u23F0"
-                "fired" -> "\u2713 fired"
+                "fired" -> "ringing"
                 else -> a.status
             }
-            val color = when (a.status) {
-                "fired", "dismissed" -> Color.GRAY
-                else -> Color.BLACK
+            return text("$mark  ${df.format(Date(a.atMillis))}  ${a.label}", 16f,
+                if (AlarmListGrouping.isHistory(a.status)) Color.GRAY else Color.BLACK)
+        }
+        if (active.isEmpty()) root.addView(text("none scheduled. Paired alarms appear here once applied.", 16f, Color.DKGRAY))
+        for (a in active) root.addView(alarmRow(a))
+        if (history.isNotEmpty()) {
+            root.addView(button(if (historyExpanded) "hide alarm history (${history.size})" else "show alarm history (${history.size})") {
+                historyExpanded = !historyExpanded
+                render()
+            }.apply { tag = "alarm-history-toggle" })
+            if (historyExpanded) {
+                root.addView(text("history - past dismissed, canceled or missed alarms. Kept to prevent replay; no alarms are deleted.", 14f, Color.DKGRAY))
+                for (a in history) root.addView(alarmRow(a).apply { tag = "alarm-history-row" })
             }
-            root.addView(text("$mark  ${df.format(Date(a.atMillis))}  ${a.label}", 16f, color))
         }
 
         root.addView(button("sync now", topPad = 24) {
