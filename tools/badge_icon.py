@@ -1,5 +1,5 @@
 # Derived from https://github.com/irvan-putra/bidik/blob/main/tools/badge_icon.py
-# Shared adaptive-aware family geometry; only Kokok art/palette and Gradle version source differ.
+# Shared single-drawable family geometry; Kokok dawn art and palette.
 #!/usr/bin/env python3
 """Launcher icon generator: one picture plus the shared version badge.
 
@@ -14,15 +14,7 @@ Picture safety: every picture pixel is checked to lie inside the circle that
 touches the icon edges (shrunk by a margin), so round launcher masks do not
 clip it; the version text is checked the same way.
 
-Outputs match the com.vanipy family standard (same geometry as the other
-apps' generators):
-- legacy mipmap PNGs per density: rounded-square icon with the strip.
-- adaptive-icon foreground: the 72dp face (576px) centred on the 108dp
-  layer (864px) with 18dp overscan; the strip spans the full layer width
-  from 76% of the face so launchers that crop the overscan still show it.
-- themed (monochrome) foreground: white silhouette; the numbers are cut
-  out of the strip for contrast.
-- mipmap-anydpi-v26 XML and the background colour resource.
+Output: one full-color 192px drawable/ic_launcher.png.
 
 `--check` regenerates everything into a temp dir and fails if any
 committed resource differs, so CI can prove the PNGs came from this
@@ -124,13 +116,13 @@ def parse_version(argv, fallback=None):
 
 
 def write_densities(img, res_dir, name="ic_launcher.png"):
-    for dens, px in DENSITIES.items():
-        out = os.path.join(res_dir, "mipmap-" + dens)
-        os.makedirs(out, exist_ok=True)
-        img.resize((px, px), Image.LANCZOS).save(os.path.join(out, name), optimize=True)
+    """Write the single 192px family drawable, without density variants."""
+    out = os.path.join(res_dir, "drawable")
+    os.makedirs(out, exist_ok=True)
+    img.resize((192, 192), Image.LANCZOS).save(os.path.join(out, name), optimize=True)
 
 
-KOKOK_BG = (16, 24, 40, 255)
+KOKOK_BG = (16, 28, 52, 255)
 KOKOK_LIGHT = (242, 244, 247, 255)
 KOKOK_STRIP = (8, 12, 22, 255)
 
@@ -139,7 +131,7 @@ def kokok_art():
     """Kokok's original dawn glyph, kept within the family's safe face."""
     art, d = new_layer()
     cx, cy, r = S // 2, int(S * .515), int(S * .13)
-    color = KOKOK_LIGHT
+    color = (255, 180, 60, 255)
     d.pieslice([cx-r, cy-r, cx+r, cy+r], 180, 360, fill=color)
     lw = max(2, r // 6)
     d.line([cx-int(r*1.5), cy, cx+int(r*1.5), cy], fill=color, width=lw)
@@ -155,82 +147,12 @@ def kokok(version):
     return compose(KOKOK_BG, kokok_art(), version, KOKOK_STRIP, KOKOK_LIGHT, rounded=.2)
 
 
-ADAPTIVE_XML = """<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_background" />
-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
-    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
-</adaptive-icon>
-"""
-
-COLORS_XML = """<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="ic_launcher_background">#101828</color>
-</resources>
-"""
-
-
-def kokok_adaptive(version):
-    """Foreground + monochrome layers with the family strip on the face.
-
-    The 72dp face is 576px centred on the 108dp 864px layer (18dp
-    overscan). Strip and text use the same 76%/88%/11.5% face geometry as
-    the legacy icon, so masked and unmasked launchers show the same badge.
-    The themed numbers are cut out of the strip for contrast.
-    """
-    T, F, I = 864, 576, 144
-    art = kokok_art()
-    art.paste((255, 140, 0, 255), (0, 0, S, S), art.getchannel("A"))
-    art = art.resize((F, F), Image.LANCZOS)
-    fg, d = new_layer(T)
-    fg.alpha_composite(art, (I, I))
-    y = I + int(F * STRIP_TOP)
-    d.rectangle([0, y, T, T], fill=KOKOK_STRIP)
-    text, td = new_layer(T)
-    td.text((T / 2, I + F * .88), version, font=font(int(F * TEXT_SIZE)),
-            fill=(255, 255, 255, 255), anchor="mm")
-    fg.alpha_composite(text)
-    alpha = Image.new("L", (T, T), 0)
-    alpha.paste(art.getchannel("A"), (I, I))
-    ImageDraw.Draw(alpha).rectangle([0, y, T, T], fill=255)
-    alpha = ImageChops.subtract(alpha, text.getchannel("A"))
-    mono = Image.new("RGBA", (T, T), (255, 255, 255, 255))
-    mono.putalpha(alpha)
-    return fg, mono
-
-
 def write_all(version, res_dir):
     write_densities(kokok(version), res_dir)
-    write_densities(kokok(version), res_dir, "ic_launcher_round.png")
-    fg, mono = kokok_adaptive(version)
-    drawables = os.path.join(res_dir, "drawable-xxxhdpi")
-    os.makedirs(drawables, exist_ok=True)
-    fg.resize((432, 432), Image.LANCZOS).save(
-        os.path.join(drawables, "ic_launcher_foreground.png"), optimize=True)
-    mono.resize((432, 432), Image.LANCZOS).save(
-        os.path.join(drawables, "ic_launcher_monochrome.png"), optimize=True)
-    anydpi = os.path.join(res_dir, "mipmap-anydpi-v26")
-    os.makedirs(anydpi, exist_ok=True)
-    for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
-        with open(os.path.join(anydpi, name), "w") as fh:
-            fh.write(ADAPTIVE_XML)
-    values = os.path.join(res_dir, "values")
-    os.makedirs(values, exist_ok=True)
-    with open(os.path.join(values, "colors.xml"), "w") as fh:
-        fh.write(COLORS_XML)
 
 
 def written_paths(res_dir):
-    paths = [os.path.join("mipmap-" + d, n) for d in DENSITIES
-             for n in ("ic_launcher.png", "ic_launcher_round.png")]
-    paths += [
-        os.path.join("drawable-xxxhdpi", "ic_launcher_foreground.png"),
-        os.path.join("drawable-xxxhdpi", "ic_launcher_monochrome.png"),
-        os.path.join("mipmap-anydpi-v26", "ic_launcher.xml"),
-        os.path.join("mipmap-anydpi-v26", "ic_launcher_round.xml"),
-        os.path.join("values", "colors.xml"),
-    ]
-    return [os.path.join(res_dir, p) for p in paths]
+    return [os.path.join(res_dir, "drawable", "ic_launcher.png")]
 
 
 def check(version, res_dir):

@@ -158,33 +158,25 @@ class UiRenderTest {
     }
 
     @Test
-    fun manifestLauncherAndThemedMaskRender() {
+    fun manifestSingleLauncherDrawableRendersAtAllSizes() {
         val context = RuntimeEnvironment.getApplication()
-        // Robolectric PackageManager shadow does not implement application-icon
-        // loading. Assert the manifest binding, then inflate that exact resource.
+        // Load the exact resource named by the manifest. No adaptive or
+        // monochrome layer may replace the full-color family drawable.
         val manifest = File("src/main/AndroidManifest.xml").readText()
-        assertTrue(manifest.contains("android:icon=\"@mipmap/ic_launcher\""))
-        val icon = context.getDrawable(R.mipmap.ic_launcher)!!
-        assertTrue(icon is android.graphics.drawable.AdaptiveIconDrawable)
-        val adaptive = icon as android.graphics.drawable.AdaptiveIconDrawable
-        val mono = adaptive.monochrome
-        assertTrue(mono != null)
-        val themed = android.graphics.drawable.AdaptiveIconDrawable(
-            android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(225, 235, 220)), mono!!)
-        // Themed icons tint the entire alpha silhouette, not its RGB colours.
-        mono.setTint(android.graphics.Color.rgb(25, 55, 25))
-        val legacy = android.graphics.drawable.BitmapDrawable(context.resources,
-            android.graphics.BitmapFactory.decodeFile("src/main/res/mipmap-xxxhdpi/ic_launcher.png"))
-        for ((name, drawable) in listOf("adaptive" to adaptive, "themed" to themed, "legacy" to legacy)) {
-            for (size in listOf(48, 96, 192)) {
-                val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-                drawable.setBounds(0, 0, size, size)
-                drawable.draw(Canvas(bmp))
-                val out = File("build/outputs/ui/launcher-$name-$size.png")
-                out.parentFile?.mkdirs()
-                FileOutputStream(out).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
-                assertTrue(out.length() > 100)
-            }
+        assertTrue(manifest.contains("android:icon=\"@drawable/ic_launcher\""))
+        val icon = context.getDrawable(R.drawable.ic_launcher)!!
+        assertTrue(icon is android.graphics.drawable.BitmapDrawable)
+        val source = android.graphics.BitmapFactory.decodeFile("src/main/res/drawable/ic_launcher.png")
+        org.junit.Assert.assertEquals(192, source.width)
+        org.junit.Assert.assertEquals(192, source.height)
+        for (size in listOf(48, 96, 192)) {
+            val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            icon.setBounds(0, 0, size, size)
+            icon.draw(Canvas(bmp))
+            val out = File("build/outputs/ui/launcher-single-$size.png")
+            out.parentFile?.mkdirs()
+            FileOutputStream(out).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            assertTrue(out.length() > 100)
         }
     }
 
