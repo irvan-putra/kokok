@@ -130,3 +130,7 @@ Sources:
 - https://developers.google.com/android/guides/play-data-disclosure (covers only the named core SDKs, not a full Sleep SDK privacy guarantee)
 
 Tests use synthetic timestamps and labels only. Host/render or emulator results are not real overnight sleep accuracy or physical-device support evidence.
+
+---
+
+Built with AI assistance (Instinct and others). Not everything has been reviewed by Irvan.

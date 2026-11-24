@@ -74,4 +74,5 @@ $("dis").onclick=()=>{if(ringing){ringing.done=true;save()}stopRing();render()};
 $("snz").onclick=()=>{if(ringing){ringing.at=Date.now()+9*60e3;save()}stopRing();render()};
 $("exp").onclick=()=>{const u=URL.createObjectURL(new Blob([JSON.stringify({kokok_web_plan:1,note:"Unencrypted plan for reference only. Not the Kokok feed.",timezone:tzn,alarms:A.map(a=>({label:a.label,iso:new Date(a.at).toISOString(),local:new Date(a.at).toString()}))},null,1)],{type:"application/json"}));const l=document.createElement("a");l.href=u;l.download="kokok-web-plan.json";l.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
 tick=setInterval(()=>{check();render()},1000);render();
-</script></body></html>
+</script><p class="ai-note" style="text-align:center;font:12px/1.4 system-ui,sans-serif;opacity:.7;margin:24px 12px">Built with AI assistance (Instinct and others). Not everything has been reviewed by Irvan.</p>
+</body></html>
