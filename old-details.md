@@ -142,3 +142,9 @@ Sources:
 Tests use synthetic timestamps and labels only. Host/render or emulator results are not real overnight sleep accuracy or physical-device support evidence.
 
 ```
+
+## Second pass (2026-11-24, later)
+
+Re-checked the details at the owner's request. About and Website were already
+right after the website re-audit; this pass only restored two spaces lost
+around version numbers in the sleep-experiment section.
