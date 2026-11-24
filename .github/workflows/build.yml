@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   consistency:
-    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@f05b5b148382a18661c616a76fd2d5ed9e6d88ba
+    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@3d9be2e1d971e3f9e3f748a2fb04931951e9f974
     with:
       app: kokok
       published: false
@@ -175,7 +175,7 @@ jobs:
 
   candidate-bytes:
     needs: release
-    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@f05b5b148382a18661c616a76fd2d5ed9e6d88ba
+    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@3d9be2e1d971e3f9e3f748a2fb04931951e9f974
     with:
       app: kokok
       published: false
@@ -211,7 +211,7 @@ jobs:
 
   verify-published:
     needs: publish
-    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@f05b5b148382a18661c616a76fd2d5ed9e6d88ba
+    uses: irvan-putra/patuh/.github/workflows/release-gate.yml@3d9be2e1d971e3f9e3f748a2fb04931951e9f974
     with:
       app: kokok
       published: true
