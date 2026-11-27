@@ -54,6 +54,18 @@
         <receiver android:name=".SnoozeReceiver" android:exported="false" android:directBootAware="true" />
         <receiver android:name=".DismissReceiver" android:exported="false" android:directBootAware="true" />
 
+        <receiver android:name=".ReminderReceiver" android:exported="false" android:directBootAware="false" />
+        <receiver android:name=".ReminderActionReceiver" android:exported="false" android:directBootAware="false" />
+        <receiver android:name=".ReminderRestoreReceiver" android:exported="false" android:directBootAware="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name=".BootReceiver" android:exported="true" android:directBootAware="true">
             <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />

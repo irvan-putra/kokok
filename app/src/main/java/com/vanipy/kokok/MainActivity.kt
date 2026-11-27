@@ -280,7 +280,7 @@ class MainActivity : Activity() {
         root.addView(button("sync now", topPad = 24) {
             Thread {
                 try {
-                    val o = Sync.fetchAndApply(this)
+                    Sync.fetchAndApply(this)
                     runOnUiThread { render() }
                 } catch (e: Exception) {
                     runOnUiThread {
@@ -292,6 +292,8 @@ class MainActivity : Activity() {
         })
         val lastSync = if (lastSyncAt > 0) df.format(Date(lastSyncAt)) else "never"
         root.addView(text("last sync: $lastSync \u2014 $lastSyncStatus", 14f, Color.GRAY))
+
+        renderReminders()
 
         root.addView(button("test alarm (rings in 60 s)", topPad = 24) {
             val id = "local-${System.currentTimeMillis()}"
@@ -393,6 +395,34 @@ class MainActivity : Activity() {
                 }
             }.start()
         })
+    }
+
+    private fun renderReminders() {
+        root.addView(text("reminders", 20f, Color.BLACK, bold = true, topPad = 32))
+        root.addView(text("recurring, from the feed. They notify with \"again in N min\" and \"done\" actions; swiping the notification away also brings it back in N min. A reminder found late still fires, same day only.", 14f, Color.DKGRAY))
+        val defs = ReminderStore.defs(this).values.sortedBy { it.timeString() }
+        if (defs.isEmpty()) {
+            root.addView(text("none in the feed. Reminders your assistant publishes appear here once applied.", 16f, Color.DKGRAY))
+            return
+        }
+        val now = System.currentTimeMillis()
+        val tz = java.util.TimeZone.getDefault()
+        val today = ReminderModel.dateString(now, tz)
+        for (def in defs) {
+            val state = ReminderStore.state(this, def.id)
+            val next = ReminderModel.nextFireMillis(def, state, now, tz)
+            val status = when {
+                state.doneDates.contains(today) -> "done today"
+                state.awaitingDate == today && state.snoozeUntilMillis > now ->
+                    "again " + SimpleDateFormat("HH:mm", Locale.US).format(Date(state.snoozeUntilMillis))
+                state.awaitingDate == today -> "waiting for you"
+                else -> ""
+            }
+            val nextText = if (next > 0) df.format(Date(next)) else "no upcoming occurrence"
+            val bell = if (def.ring) "\u23F0" else "\uD83D\uDD14"
+            root.addView(text("$bell  ${def.timeString()}  ${def.label} — next: $nextText" +
+                (if (status.isNotEmpty()) " ($status)" else ""), 16f, Color.BLACK))
+        }
     }
 
     private fun stopSoundPreview() {

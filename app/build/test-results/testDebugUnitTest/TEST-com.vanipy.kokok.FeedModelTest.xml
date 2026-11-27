@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.vanipy.kokok.FeedModelTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-27T03:46:08" hostname="e2b.local" time="0.215">
+  <properties/>
+  <testcase name="ringsImmediatelyNoMatterHowLate" classname="com.vanipy.kokok.FeedModelTest" time="0.011"/>
+  <testcase name="firedAlarmsNeverReringAndAbsentIsCanceled" classname="com.vanipy.kokok.FeedModelTest" time="0.015"/>
+  <testcase name="feedRefreshPreservesSnoozedAlarmAndSchedulesOnlyBackup" classname="com.vanipy.kokok.FeedModelTest" time="0.022"/>
+  <testcase name="ringsImmediatelyWithinTenMinutes" classname="com.vanipy.kokok.FeedModelTest" time="0.014"/>
+  <testcase name="rejectsStaleRev" classname="com.vanipy.kokok.FeedModelTest" time="0.037"/>
+  <testcase name="identicalScheduledIdIsNotRewrittenButUnsnoozedEditStillApplies" classname="com.vanipy.kokok.FeedModelTest" time="0.02"/>
+  <testcase name="snoozeFlagRoundTripsThroughBothAlarmStores" classname="com.vanipy.kokok.FeedModelTest" time="0.037"/>
+  <testcase name="schedulesFutureAlarms" classname="com.vanipy.kokok.FeedModelTest" time="0.024"/>
+  <testcase name="explicitFeedRemovalStillCancelsSnoozedFeedAlarm" classname="com.vanipy.kokok.FeedModelTest" time="0.033"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

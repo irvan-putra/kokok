@@ -26,8 +26,14 @@ plus an optional message you choose to send yourself.
 - Crypto: Google Tink on both ends, identical key templates —
   hybrid `ECIES_P256_COMPRESSED_HKDF_HMAC_SHA256_AES128_GCM`, signature `ECDSA_P256`,
   HKDF context `kokok-feed-v1`. No homegrown primitives.
-- Document: `{"v":1,"rev":N,"updated":...,"tz":...,"alarms":[{"id","label","atMillis","snooze"}]}`.
+- Document: `{"v":1,"rev":N,"updated":...,"tz":...,"alarms":[{"id","label","atMillis","snooze"}],
+  "reminders":[{"id","label","time","days","snooze","ring"}]}`.
   `atMillis` is an absolute instant; the phone renders it in its current timezone.
+- Reminders are optional and recurring: `time` is a phone-local wall-clock `"HH:mm"`,
+  `days` an optional ISO weekday list (1=Mon..7=Sun; omitted or empty means every day),
+  `snooze` the "again" interval in minutes (default 60), and `ring` selects the full
+  ringer (true) or a heads-up notification (false, default). Older app versions
+  ignore the field.
 - Writer: `tools/feed_write.py` (Python Tink), cross-verified against the Android
   reader in both directions by unit tests.
 
@@ -47,6 +53,14 @@ plus an optional message you choose to send yourself.
   boot receiver handles both `LOCKED_BOOT_COMPLETED` and `BOOT_COMPLETED`, so
   rescheduling works even on a still-locked phone. Time/timezone changes re-evaluate
   against the fresh clock.
+- A reminder occurrence is id + local date, the same rule repeating alarms use.
+  "done" ends today's occurrence for good; "again" (or swiping the notification
+  away) re-fires it after the reminder's snooze minutes. A reminder absent from
+  the feed stops future occurrences; done history is kept.
+- A reminder found late fires immediately, but only within its own day; a past
+  day's occurrence never fires. Reminders resume after the first unlock following
+  a reboot — they are notification-level and not mirrored into device-protected
+  storage.
 
 ## Permissions, and why
 

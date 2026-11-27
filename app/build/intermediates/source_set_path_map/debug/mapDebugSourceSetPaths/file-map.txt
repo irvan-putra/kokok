@@ -1,0 +1,10 @@
+com.vanipy.kokok.app-pngs-0 /downloads/kokok/app/build/generated/res/pngs/debug
+com.vanipy.kokok.app-resValues-1 /downloads/kokok/app/build/generated/res/resValues/debug
+com.vanipy.kokok.app-packageDebugResources-2 /downloads/kokok/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.vanipy.kokok.app-packageDebugResources-3 /downloads/kokok/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.vanipy.kokok.app-debug-4 /downloads/kokok/app/build/intermediates/merged_res/debug/mergeDebugResources
+com.vanipy.kokok.app-debug-5 /downloads/kokok/app/src/debug/res
+com.vanipy.kokok.app-main-6 /downloads/kokok/app/src/main/res
+com.vanipy.kokok.app-play-services-basement-18.4.0-7 /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/res
+com.vanipy.kokok.app-core-1.2.0-8 /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/res
+com.vanipy.kokok.app-play-services-base-18.5.0-9 /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/res

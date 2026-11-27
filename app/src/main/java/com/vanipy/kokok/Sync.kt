@@ -70,12 +70,15 @@ object Sync {
             Scheduler.schedule(context, FeedModel.Alarm(a.id, a.label, now + 1_000, a.snooze))
         }
         FeedStore.saveAlarms(context, stored)
+        val reminders = ReminderScheduler.applyFeed(context, feed.reminders)
         context.lastAppliedRev = feed.rev.toLong()
         context.lastSyncAt = now
         val outcome = Outcome(feed.rev, plan.toSchedule.size, plan.toCancel.size, plan.toRingNow.size)
         context.lastSyncStatus = "applied rev ${outcome.rev}: ${outcome.scheduled} scheduled, " +
             "${outcome.canceled} canceled" +
-            if (outcome.rangNow > 0) ", ${outcome.rangNow} rang immediately (late)" else ""
+            (if (outcome.rangNow > 0) ", ${outcome.rangNow} rang immediately (late)" else "") +
+            "; ${reminders.first} reminders active" +
+            (if (reminders.second > 0) ", ${reminders.second} removed" else "")
         return outcome
     }
 }

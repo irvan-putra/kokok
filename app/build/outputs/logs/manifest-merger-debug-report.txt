@@ -1,0 +1,358 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:2:1-99:12
+MERGED from /downloads/kokok/app/src/main/AndroidManifest.xml:2:1-99:12
+INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml:1:1-4:12
+INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml:1:1-4:12
+INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml:1:1-4:12
+MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/sandbox/.gradle/caches/transforms-4/3f6aa422dbc8dcf2ab92ea1fe0e68e52/transformed/play-services-location-21.3.0/AndroidManifest.xml:2:1-8:12
+MERGED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] /home/sandbox/.gradle/caches/transforms-4/e5a1143cadaaeb62141efc30e23a1811/transformed/play-services-tasks-18.2.0/AndroidManifest.xml:2:1-5:12
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.fragment:fragment:1.1.0] /home/sandbox/.gradle/caches/transforms-4/63c42e876886acc1d3cbc63c1c4a25ad/transformed/fragment-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/sandbox/.gradle/caches/transforms-4/9058d3203c58dc99449288a15d623abd/transformed/viewpager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] /home/sandbox/.gradle/caches/transforms-4/f682e6c3b85716736f7b74be2ad503f9/transformed/loader-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.activity:activity:1.0.0] /home/sandbox/.gradle/caches/transforms-4/0058038489774d6b9dbb168271818881/transformed/activity-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.customview:customview:1.0.0] /home/sandbox/.gradle/caches/transforms-4/82095e021b40c773cc9e473f80c74457/transformed/customview-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core:1.2.0] /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/AndroidManifest.xml:17:1-26:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.0] /home/sandbox/.gradle/caches/transforms-4/d83c79cb4551d1bb37012d6b0eab05d9/transformed/versionedparcelable-1.1.0/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.1.0] /home/sandbox/.gradle/caches/transforms-4/c969a61add7e1f43b96478329e0e1294/transformed/lifecycle-runtime-2.1.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.1.0] /home/sandbox/.gradle/caches/transforms-4/056b145abd13b6680dac21f33ba49fdd/transformed/lifecycle-viewmodel-2.1.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.0.0] /home/sandbox/.gradle/caches/transforms-4/209fb29c438d93f5b42cb7637f5e0c5d/transformed/savedstate-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] /home/sandbox/.gradle/caches/transforms-4/b902b0929111c4e7f379b0aa5166c4d6/transformed/lifecycle-livedata-2.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.0.0] /home/sandbox/.gradle/caches/transforms-4/55a1bc3c9605b1e0a37e294240d790db/transformed/lifecycle-livedata-core-2.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.arch.core:core-runtime:2.0.0] /home/sandbox/.gradle/caches/transforms-4/1468521a52b07843ec1611907bcc51cd/transformed/core-runtime-2.0.0/AndroidManifest.xml:17:1-22:12
+	package
+		INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+	android:versionName
+		INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+	xmlns:android
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.USE_EXACT_ALARM
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:4:5-74
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:4:22-71
+uses-permission#android.permission.SCHEDULE_EXACT_ALARM
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:5:5-79
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:5:22-76
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:6:5-81
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:6:22-78
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:7:5-77
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:7:22-74
+uses-permission#android.permission.USE_FULL_SCREEN_INTENT
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:8:5-81
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:8:22-78
+uses-permission#android.permission.WAKE_LOCK
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:9:5-68
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:9:22-65
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:10:5-77
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:10:22-74
+uses-permission#android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:11:5-92
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:11:22-89
+uses-permission#android.permission.VIBRATE
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:12:5-66
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:12:22-63
+uses-permission#android.permission.MODIFY_AUDIO_SETTINGS
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:13:5-80
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:13:22-77
+uses-permission#android.permission.REQUEST_INSTALL_PACKAGES
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:14:5-83
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:14:22-80
+uses-permission#android.permission.INTERNET
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:15:5-67
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:15:22-64
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:16:5-79
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:16:22-76
+uses-permission#android.permission.ACTIVITY_RECOGNITION
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:18:5-79
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:18:22-76
+application
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:20:5-98:19
+MERGED from /downloads/kokok/app/src/main/AndroidManifest.xml:20:5-98:19
+MERGED from /downloads/kokok/app/src/main/AndroidManifest.xml:20:5-98:19
+INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml:3:5-80
+MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/sandbox/.gradle/caches/transforms-4/3f6aa422dbc8dcf2ab92ea1fe0e68e52/transformed/play-services-location-21.3.0/AndroidManifest.xml:6:5-20
+MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/sandbox/.gradle/caches/transforms-4/3f6aa422dbc8dcf2ab92ea1fe0e68e52/transformed/play-services-location-21.3.0/AndroidManifest.xml:6:5-20
+MERGED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:4:5-6:19
+MERGED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:4:5-6:19
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] /home/sandbox/.gradle/caches/transforms-4/e5a1143cadaaeb62141efc30e23a1811/transformed/play-services-tasks-18.2.0/AndroidManifest.xml:4:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] /home/sandbox/.gradle/caches/transforms-4/e5a1143cadaaeb62141efc30e23a1811/transformed/play-services-tasks-18.2.0/AndroidManifest.xml:4:5-20
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:5:5-7:19
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:5:5-7:19
+MERGED from [androidx.core:core:1.2.0] /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/AndroidManifest.xml:24:5-89
+MERGED from [androidx.core:core:1.2.0] /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/AndroidManifest.xml:24:5-89
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.0] /home/sandbox/.gradle/caches/transforms-4/d83c79cb4551d1bb37012d6b0eab05d9/transformed/versionedparcelable-1.1.0/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.0] /home/sandbox/.gradle/caches/transforms-4/d83c79cb4551d1bb37012d6b0eab05d9/transformed/versionedparcelable-1.1.0/AndroidManifest.xml:24:5-25:19
+	android:extractNativeLibs
+		INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.2.0] /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/AndroidManifest.xml:24:18-86
+	android:label
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:21:9-41
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:21:9-41
+	android:roundIcon
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:23:9-50
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:23:9-50
+	android:defaultToDeviceProtectedStorage
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:25:9-56
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:25:9-56
+	android:icon
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:22:9-45
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:22:9-45
+	android:allowBackup
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:27:9-36
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:27:9-36
+	android:networkSecurityConfig
+		ADDED from /downloads/kokok/app/src/debug/AndroidManifest.xml:3:18-77
+	android:theme
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:24:9-43
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:24:9-43
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:26:9-39
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:26:9-39
+activity#com.vanipy.kokok.MainActivity
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:29:9-42:20
+	android:launchMode
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:31:13-43
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:32:13-36
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:30:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:33:13-36:29
+action#android.intent.action.MAIN
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:34:17-69
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:34:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:35:17-77
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:35:27-74
+intent-filter#action:name:android.intent.action.SEND+category:name:android.intent.category.DEFAULT+data:mimeType:text/plain
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:37:13-41:29
+action#android.intent.action.SEND
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:38:17-69
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:38:25-66
+category#android.intent.category.DEFAULT
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:39:17-76
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:39:27-73
+data
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:40:17-55
+	android:mimeType
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:40:23-52
+activity#com.vanipy.kokok.AlarmActivity
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:44:9-51:51
+	android:turnScreenOn
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:49:13-40
+	android:excludeFromRecents
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:50:13-46
+	android:showWhenLocked
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:48:13-42
+	android:launchMode
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:51:13-48
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:47:13-37
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:46:13-43
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:45:13-42
+receiver#com.vanipy.kokok.AlarmReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:53:9-107
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:53:49-73
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:53:74-104
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:53:19-48
+receiver#com.vanipy.kokok.SnoozeReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:54:9-108
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:54:50-74
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:54:75-105
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:54:19-49
+receiver#com.vanipy.kokok.DismissReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:55:9-109
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:55:51-75
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:55:76-106
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:55:19-50
+receiver#com.vanipy.kokok.ReminderReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:57:9-111
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:57:52-76
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:57:77-108
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:57:19-51
+receiver#com.vanipy.kokok.ReminderActionReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:58:9-117
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:58:58-82
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:58:83-114
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:58:19-57
+receiver#com.vanipy.kokok.ReminderRestoreReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:59:9-67:20
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:59:59-83
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:59:84-115
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:59:19-58
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.MY_PACKAGE_REPLACED+action:name:android.intent.action.TIMEZONE_CHANGED+action:name:android.intent.action.TIME_SET+action:name:android.intent.action.USER_UNLOCKED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:60:13-66:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:61:17-79
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:61:25-76
+action#android.intent.action.MY_PACKAGE_REPLACED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:62:17-84
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:62:25-81
+action#android.intent.action.USER_UNLOCKED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:63:17-78
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:63:25-75
+action#android.intent.action.TIME_SET
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:64:17-73
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:64:25-70
+action#android.intent.action.TIMEZONE_CHANGED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:65:17-81
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:65:25-78
+receiver#com.vanipy.kokok.BootReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:69:9-76:20
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:69:48-71
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:69:72-102
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:69:19-47
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.LOCKED_BOOT_COMPLETED+action:name:android.intent.action.TIMEZONE_CHANGED+action:name:android.intent.action.TIME_SET
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:70:13-75:29
+action#android.intent.action.LOCKED_BOOT_COMPLETED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:71:17-86
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:71:25-83
+receiver#com.vanipy.kokok.SleepUpdateReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:78:9-114
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:78:55-79
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:78:80-111
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:78:19-54
+receiver#com.vanipy.kokok.SleepRestoreReceiver
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:79:9-85:20
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:79:56-80
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:79:81-112
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:79:19-55
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.MY_PACKAGE_REPLACED+action:name:android.intent.action.USER_UNLOCKED
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:80:13-84:29
+service#com.vanipy.kokok.AlarmRingService
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:87:9-91:61
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:90:13-37
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:89:13-43
+	android:foregroundServiceType
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:91:13-58
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:88:13-45
+service#com.vanipy.kokok.SyncJobService
+ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:93:9-97:72
+	android:exported
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:95:13-37
+	android:permission
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:97:13-69
+	android:directBootAware
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:96:13-43
+	android:name
+		ADDED from /downloads/kokok/app/src/main/AndroidManifest.xml:94:13-43
+uses-sdk
+INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/sandbox/.gradle/caches/transforms-4/3f6aa422dbc8dcf2ab92ea1fe0e68e52/transformed/play-services-location-21.3.0/AndroidManifest.xml:4:5-44
+MERGED from [com.google.android.gms:play-services-location:21.3.0] /home/sandbox/.gradle/caches/transforms-4/3f6aa422dbc8dcf2ab92ea1fe0e68e52/transformed/play-services-location-21.3.0/AndroidManifest.xml:4:5-44
+MERGED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] /home/sandbox/.gradle/caches/transforms-4/e5a1143cadaaeb62141efc30e23a1811/transformed/play-services-tasks-18.2.0/AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-tasks:18.2.0] /home/sandbox/.gradle/caches/transforms-4/e5a1143cadaaeb62141efc30e23a1811/transformed/play-services-tasks-18.2.0/AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:3:5-44
+MERGED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:3:5-44
+MERGED from [androidx.fragment:fragment:1.1.0] /home/sandbox/.gradle/caches/transforms-4/63c42e876886acc1d3cbc63c1c4a25ad/transformed/fragment-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.1.0] /home/sandbox/.gradle/caches/transforms-4/63c42e876886acc1d3cbc63c1c4a25ad/transformed/fragment-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/sandbox/.gradle/caches/transforms-4/9058d3203c58dc99449288a15d623abd/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /home/sandbox/.gradle/caches/transforms-4/9058d3203c58dc99449288a15d623abd/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /home/sandbox/.gradle/caches/transforms-4/f682e6c3b85716736f7b74be2ad503f9/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /home/sandbox/.gradle/caches/transforms-4/f682e6c3b85716736f7b74be2ad503f9/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.0.0] /home/sandbox/.gradle/caches/transforms-4/0058038489774d6b9dbb168271818881/transformed/activity-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity:1.0.0] /home/sandbox/.gradle/caches/transforms-4/0058038489774d6b9dbb168271818881/transformed/activity-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview:1.0.0] /home/sandbox/.gradle/caches/transforms-4/82095e021b40c773cc9e473f80c74457/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] /home/sandbox/.gradle/caches/transforms-4/82095e021b40c773cc9e473f80c74457/transformed/customview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.2.0] /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core:1.2.0] /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.0] /home/sandbox/.gradle/caches/transforms-4/d83c79cb4551d1bb37012d6b0eab05d9/transformed/versionedparcelable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.0] /home/sandbox/.gradle/caches/transforms-4/d83c79cb4551d1bb37012d6b0eab05d9/transformed/versionedparcelable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.1.0] /home/sandbox/.gradle/caches/transforms-4/c969a61add7e1f43b96478329e0e1294/transformed/lifecycle-runtime-2.1.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.1.0] /home/sandbox/.gradle/caches/transforms-4/c969a61add7e1f43b96478329e0e1294/transformed/lifecycle-runtime-2.1.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.1.0] /home/sandbox/.gradle/caches/transforms-4/056b145abd13b6680dac21f33ba49fdd/transformed/lifecycle-viewmodel-2.1.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.1.0] /home/sandbox/.gradle/caches/transforms-4/056b145abd13b6680dac21f33ba49fdd/transformed/lifecycle-viewmodel-2.1.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.0.0] /home/sandbox/.gradle/caches/transforms-4/209fb29c438d93f5b42cb7637f5e0c5d/transformed/savedstate-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.savedstate:savedstate:1.0.0] /home/sandbox/.gradle/caches/transforms-4/209fb29c438d93f5b42cb7637f5e0c5d/transformed/savedstate-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] /home/sandbox/.gradle/caches/transforms-4/b902b0929111c4e7f379b0aa5166c4d6/transformed/lifecycle-livedata-2.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] /home/sandbox/.gradle/caches/transforms-4/b902b0929111c4e7f379b0aa5166c4d6/transformed/lifecycle-livedata-2.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.0.0] /home/sandbox/.gradle/caches/transforms-4/55a1bc3c9605b1e0a37e294240d790db/transformed/lifecycle-livedata-core-2.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.0.0] /home/sandbox/.gradle/caches/transforms-4/55a1bc3c9605b1e0a37e294240d790db/transformed/lifecycle-livedata-core-2.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.0.0] /home/sandbox/.gradle/caches/transforms-4/1468521a52b07843ec1611907bcc51cd/transformed/core-runtime-2.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.0.0] /home/sandbox/.gradle/caches/transforms-4/1468521a52b07843ec1611907bcc51cd/transformed/core-runtime-2.0.0/AndroidManifest.xml:20:5-44
+	android:targetSdkVersion
+		INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /downloads/kokok/app/src/debug/AndroidManifest.xml
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:9-173
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:146-170
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:86-145
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:19-85
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:9-122
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:66-119
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:20-65

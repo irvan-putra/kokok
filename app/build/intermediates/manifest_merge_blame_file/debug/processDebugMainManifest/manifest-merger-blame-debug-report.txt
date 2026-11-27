@@ -1,0 +1,284 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.vanipy.kokok"
+4    android:versionCode="10"
+5    android:versionName="0.3.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+11-->/downloads/kokok/app/src/main/AndroidManifest.xml:4:5-74
+11-->/downloads/kokok/app/src/main/AndroidManifest.xml:4:22-71
+12    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+12-->/downloads/kokok/app/src/main/AndroidManifest.xml:5:5-79
+12-->/downloads/kokok/app/src/main/AndroidManifest.xml:5:22-76
+13    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+13-->/downloads/kokok/app/src/main/AndroidManifest.xml:6:5-81
+13-->/downloads/kokok/app/src/main/AndroidManifest.xml:6:22-78
+14    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+14-->/downloads/kokok/app/src/main/AndroidManifest.xml:7:5-77
+14-->/downloads/kokok/app/src/main/AndroidManifest.xml:7:22-74
+15    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+15-->/downloads/kokok/app/src/main/AndroidManifest.xml:8:5-81
+15-->/downloads/kokok/app/src/main/AndroidManifest.xml:8:22-78
+16    <uses-permission android:name="android.permission.WAKE_LOCK" />
+16-->/downloads/kokok/app/src/main/AndroidManifest.xml:9:5-68
+16-->/downloads/kokok/app/src/main/AndroidManifest.xml:9:22-65
+17    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+17-->/downloads/kokok/app/src/main/AndroidManifest.xml:10:5-77
+17-->/downloads/kokok/app/src/main/AndroidManifest.xml:10:22-74
+18    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+18-->/downloads/kokok/app/src/main/AndroidManifest.xml:11:5-92
+18-->/downloads/kokok/app/src/main/AndroidManifest.xml:11:22-89
+19    <uses-permission android:name="android.permission.VIBRATE" />
+19-->/downloads/kokok/app/src/main/AndroidManifest.xml:12:5-66
+19-->/downloads/kokok/app/src/main/AndroidManifest.xml:12:22-63
+20    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+20-->/downloads/kokok/app/src/main/AndroidManifest.xml:13:5-80
+20-->/downloads/kokok/app/src/main/AndroidManifest.xml:13:22-77
+21    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+21-->/downloads/kokok/app/src/main/AndroidManifest.xml:14:5-83
+21-->/downloads/kokok/app/src/main/AndroidManifest.xml:14:22-80
+22    <uses-permission android:name="android.permission.INTERNET" />
+22-->/downloads/kokok/app/src/main/AndroidManifest.xml:15:5-67
+22-->/downloads/kokok/app/src/main/AndroidManifest.xml:15:22-64
+23    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+23-->/downloads/kokok/app/src/main/AndroidManifest.xml:16:5-79
+23-->/downloads/kokok/app/src/main/AndroidManifest.xml:16:22-76
+24    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" /> <!-- Synthetic emulator server only. Release remains HTTPS-only. -->
+24-->/downloads/kokok/app/src/main/AndroidManifest.xml:18:5-79
+24-->/downloads/kokok/app/src/main/AndroidManifest.xml:18:22-76
+25    <application
+25-->/downloads/kokok/app/src/main/AndroidManifest.xml:20:5-98:19
+26        android:allowBackup="false"
+26-->/downloads/kokok/app/src/main/AndroidManifest.xml:27:9-36
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.2.0] /home/sandbox/.gradle/caches/transforms-4/7316030a8e9b504bc32ff7632a739a57/transformed/core-1.2.0/AndroidManifest.xml:24:18-86
+28        android:debuggable="true"
+29        android:defaultToDeviceProtectedStorage="false"
+29-->/downloads/kokok/app/src/main/AndroidManifest.xml:25:9-56
+30        android:directBootAware="true"
+30-->/downloads/kokok/app/src/main/AndroidManifest.xml:26:9-39
+31        android:extractNativeLibs="false"
+32        android:icon="@drawable/ic_launcher"
+32-->/downloads/kokok/app/src/main/AndroidManifest.xml:22:9-45
+33        android:label="@string/app_name"
+33-->/downloads/kokok/app/src/main/AndroidManifest.xml:21:9-41
+34        android:networkSecurityConfig="@xml/debug_network_security"
+34-->/downloads/kokok/app/src/debug/AndroidManifest.xml:3:18-77
+35        android:roundIcon="@drawable/ic_launcher"
+35-->/downloads/kokok/app/src/main/AndroidManifest.xml:23:9-50
+36        android:theme="@style/Theme.Kokok" >
+36-->/downloads/kokok/app/src/main/AndroidManifest.xml:24:9-43
+37        <activity
+37-->/downloads/kokok/app/src/main/AndroidManifest.xml:29:9-42:20
+38            android:name="com.vanipy.kokok.MainActivity"
+38-->/downloads/kokok/app/src/main/AndroidManifest.xml:30:13-41
+39            android:exported="true"
+39-->/downloads/kokok/app/src/main/AndroidManifest.xml:32:13-36
+40            android:launchMode="singleTop" >
+40-->/downloads/kokok/app/src/main/AndroidManifest.xml:31:13-43
+41            <intent-filter>
+41-->/downloads/kokok/app/src/main/AndroidManifest.xml:33:13-36:29
+42                <action android:name="android.intent.action.MAIN" />
+42-->/downloads/kokok/app/src/main/AndroidManifest.xml:34:17-69
+42-->/downloads/kokok/app/src/main/AndroidManifest.xml:34:25-66
+43
+44                <category android:name="android.intent.category.LAUNCHER" />
+44-->/downloads/kokok/app/src/main/AndroidManifest.xml:35:17-77
+44-->/downloads/kokok/app/src/main/AndroidManifest.xml:35:27-74
+45            </intent-filter>
+46            <intent-filter>
+46-->/downloads/kokok/app/src/main/AndroidManifest.xml:37:13-41:29
+47                <action android:name="android.intent.action.SEND" />
+47-->/downloads/kokok/app/src/main/AndroidManifest.xml:38:17-69
+47-->/downloads/kokok/app/src/main/AndroidManifest.xml:38:25-66
+48
+49                <category android:name="android.intent.category.DEFAULT" />
+49-->/downloads/kokok/app/src/main/AndroidManifest.xml:39:17-76
+49-->/downloads/kokok/app/src/main/AndroidManifest.xml:39:27-73
+50
+51                <data android:mimeType="text/plain" />
+51-->/downloads/kokok/app/src/main/AndroidManifest.xml:40:17-55
+51-->/downloads/kokok/app/src/main/AndroidManifest.xml:40:23-52
+52            </intent-filter>
+53        </activity>
+54        <activity
+54-->/downloads/kokok/app/src/main/AndroidManifest.xml:44:9-51:51
+55            android:name="com.vanipy.kokok.AlarmActivity"
+55-->/downloads/kokok/app/src/main/AndroidManifest.xml:45:13-42
+56            android:directBootAware="true"
+56-->/downloads/kokok/app/src/main/AndroidManifest.xml:46:13-43
+57            android:excludeFromRecents="true"
+57-->/downloads/kokok/app/src/main/AndroidManifest.xml:50:13-46
+58            android:exported="false"
+58-->/downloads/kokok/app/src/main/AndroidManifest.xml:47:13-37
+59            android:launchMode="singleInstance"
+59-->/downloads/kokok/app/src/main/AndroidManifest.xml:51:13-48
+60            android:showWhenLocked="true"
+60-->/downloads/kokok/app/src/main/AndroidManifest.xml:48:13-42
+61            android:turnScreenOn="true" />
+61-->/downloads/kokok/app/src/main/AndroidManifest.xml:49:13-40
+62
+63        <receiver
+63-->/downloads/kokok/app/src/main/AndroidManifest.xml:53:9-107
+64            android:name="com.vanipy.kokok.AlarmReceiver"
+64-->/downloads/kokok/app/src/main/AndroidManifest.xml:53:19-48
+65            android:directBootAware="true"
+65-->/downloads/kokok/app/src/main/AndroidManifest.xml:53:74-104
+66            android:exported="false" />
+66-->/downloads/kokok/app/src/main/AndroidManifest.xml:53:49-73
+67        <receiver
+67-->/downloads/kokok/app/src/main/AndroidManifest.xml:54:9-108
+68            android:name="com.vanipy.kokok.SnoozeReceiver"
+68-->/downloads/kokok/app/src/main/AndroidManifest.xml:54:19-49
+69            android:directBootAware="true"
+69-->/downloads/kokok/app/src/main/AndroidManifest.xml:54:75-105
+70            android:exported="false" />
+70-->/downloads/kokok/app/src/main/AndroidManifest.xml:54:50-74
+71        <receiver
+71-->/downloads/kokok/app/src/main/AndroidManifest.xml:55:9-109
+72            android:name="com.vanipy.kokok.DismissReceiver"
+72-->/downloads/kokok/app/src/main/AndroidManifest.xml:55:19-50
+73            android:directBootAware="true"
+73-->/downloads/kokok/app/src/main/AndroidManifest.xml:55:76-106
+74            android:exported="false" />
+74-->/downloads/kokok/app/src/main/AndroidManifest.xml:55:51-75
+75        <receiver
+75-->/downloads/kokok/app/src/main/AndroidManifest.xml:57:9-111
+76            android:name="com.vanipy.kokok.ReminderReceiver"
+76-->/downloads/kokok/app/src/main/AndroidManifest.xml:57:19-51
+77            android:directBootAware="false"
+77-->/downloads/kokok/app/src/main/AndroidManifest.xml:57:77-108
+78            android:exported="false" />
+78-->/downloads/kokok/app/src/main/AndroidManifest.xml:57:52-76
+79        <receiver
+79-->/downloads/kokok/app/src/main/AndroidManifest.xml:58:9-117
+80            android:name="com.vanipy.kokok.ReminderActionReceiver"
+80-->/downloads/kokok/app/src/main/AndroidManifest.xml:58:19-57
+81            android:directBootAware="false"
+81-->/downloads/kokok/app/src/main/AndroidManifest.xml:58:83-114
+82            android:exported="false" />
+82-->/downloads/kokok/app/src/main/AndroidManifest.xml:58:58-82
+83        <receiver
+83-->/downloads/kokok/app/src/main/AndroidManifest.xml:59:9-67:20
+84            android:name="com.vanipy.kokok.ReminderRestoreReceiver"
+84-->/downloads/kokok/app/src/main/AndroidManifest.xml:59:19-58
+85            android:directBootAware="false"
+85-->/downloads/kokok/app/src/main/AndroidManifest.xml:59:84-115
+86            android:exported="false" >
+86-->/downloads/kokok/app/src/main/AndroidManifest.xml:59:59-83
+87            <intent-filter>
+87-->/downloads/kokok/app/src/main/AndroidManifest.xml:60:13-66:29
+88                <action android:name="android.intent.action.BOOT_COMPLETED" />
+88-->/downloads/kokok/app/src/main/AndroidManifest.xml:61:17-79
+88-->/downloads/kokok/app/src/main/AndroidManifest.xml:61:25-76
+89                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+89-->/downloads/kokok/app/src/main/AndroidManifest.xml:62:17-84
+89-->/downloads/kokok/app/src/main/AndroidManifest.xml:62:25-81
+90                <action android:name="android.intent.action.USER_UNLOCKED" />
+90-->/downloads/kokok/app/src/main/AndroidManifest.xml:63:17-78
+90-->/downloads/kokok/app/src/main/AndroidManifest.xml:63:25-75
+91                <action android:name="android.intent.action.TIME_SET" />
+91-->/downloads/kokok/app/src/main/AndroidManifest.xml:64:17-73
+91-->/downloads/kokok/app/src/main/AndroidManifest.xml:64:25-70
+92                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+92-->/downloads/kokok/app/src/main/AndroidManifest.xml:65:17-81
+92-->/downloads/kokok/app/src/main/AndroidManifest.xml:65:25-78
+93            </intent-filter>
+94        </receiver>
+95        <receiver
+95-->/downloads/kokok/app/src/main/AndroidManifest.xml:69:9-76:20
+96            android:name="com.vanipy.kokok.BootReceiver"
+96-->/downloads/kokok/app/src/main/AndroidManifest.xml:69:19-47
+97            android:directBootAware="true"
+97-->/downloads/kokok/app/src/main/AndroidManifest.xml:69:72-102
+98            android:exported="true" >
+98-->/downloads/kokok/app/src/main/AndroidManifest.xml:69:48-71
+99            <intent-filter>
+99-->/downloads/kokok/app/src/main/AndroidManifest.xml:70:13-75:29
+100                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+100-->/downloads/kokok/app/src/main/AndroidManifest.xml:71:17-86
+100-->/downloads/kokok/app/src/main/AndroidManifest.xml:71:25-83
+101                <action android:name="android.intent.action.BOOT_COMPLETED" />
+101-->/downloads/kokok/app/src/main/AndroidManifest.xml:61:17-79
+101-->/downloads/kokok/app/src/main/AndroidManifest.xml:61:25-76
+102                <action android:name="android.intent.action.TIME_SET" />
+102-->/downloads/kokok/app/src/main/AndroidManifest.xml:64:17-73
+102-->/downloads/kokok/app/src/main/AndroidManifest.xml:64:25-70
+103                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+103-->/downloads/kokok/app/src/main/AndroidManifest.xml:65:17-81
+103-->/downloads/kokok/app/src/main/AndroidManifest.xml:65:25-78
+104            </intent-filter>
+105        </receiver>
+106        <receiver
+106-->/downloads/kokok/app/src/main/AndroidManifest.xml:78:9-114
+107            android:name="com.vanipy.kokok.SleepUpdateReceiver"
+107-->/downloads/kokok/app/src/main/AndroidManifest.xml:78:19-54
+108            android:directBootAware="false"
+108-->/downloads/kokok/app/src/main/AndroidManifest.xml:78:80-111
+109            android:exported="false" />
+109-->/downloads/kokok/app/src/main/AndroidManifest.xml:78:55-79
+110        <receiver
+110-->/downloads/kokok/app/src/main/AndroidManifest.xml:79:9-85:20
+111            android:name="com.vanipy.kokok.SleepRestoreReceiver"
+111-->/downloads/kokok/app/src/main/AndroidManifest.xml:79:19-55
+112            android:directBootAware="false"
+112-->/downloads/kokok/app/src/main/AndroidManifest.xml:79:81-112
+113            android:exported="false" >
+113-->/downloads/kokok/app/src/main/AndroidManifest.xml:79:56-80
+114            <intent-filter>
+114-->/downloads/kokok/app/src/main/AndroidManifest.xml:80:13-84:29
+115                <action android:name="android.intent.action.BOOT_COMPLETED" />
+115-->/downloads/kokok/app/src/main/AndroidManifest.xml:61:17-79
+115-->/downloads/kokok/app/src/main/AndroidManifest.xml:61:25-76
+116                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+116-->/downloads/kokok/app/src/main/AndroidManifest.xml:62:17-84
+116-->/downloads/kokok/app/src/main/AndroidManifest.xml:62:25-81
+117                <action android:name="android.intent.action.USER_UNLOCKED" />
+117-->/downloads/kokok/app/src/main/AndroidManifest.xml:63:17-78
+117-->/downloads/kokok/app/src/main/AndroidManifest.xml:63:25-75
+118            </intent-filter>
+119        </receiver>
+120
+121        <service
+121-->/downloads/kokok/app/src/main/AndroidManifest.xml:87:9-91:61
+122            android:name="com.vanipy.kokok.AlarmRingService"
+122-->/downloads/kokok/app/src/main/AndroidManifest.xml:88:13-45
+123            android:directBootAware="true"
+123-->/downloads/kokok/app/src/main/AndroidManifest.xml:89:13-43
+124            android:exported="false"
+124-->/downloads/kokok/app/src/main/AndroidManifest.xml:90:13-37
+125            android:foregroundServiceType="mediaPlayback" />
+125-->/downloads/kokok/app/src/main/AndroidManifest.xml:91:13-58
+126        <service
+126-->/downloads/kokok/app/src/main/AndroidManifest.xml:93:9-97:72
+127            android:name="com.vanipy.kokok.SyncJobService"
+127-->/downloads/kokok/app/src/main/AndroidManifest.xml:94:13-43
+128            android:directBootAware="true"
+128-->/downloads/kokok/app/src/main/AndroidManifest.xml:96:13-43
+129            android:exported="false"
+129-->/downloads/kokok/app/src/main/AndroidManifest.xml:95:13-37
+130            android:permission="android.permission.BIND_JOB_SERVICE" />
+130-->/downloads/kokok/app/src/main/AndroidManifest.xml:97:13-69
+131
+132        <activity
+132-->[com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:9-173
+133            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+133-->[com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:19-85
+134            android:exported="false"
+134-->[com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:146-170
+135            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+135-->[com.google.android.gms:play-services-base:18.5.0] /home/sandbox/.gradle/caches/transforms-4/eb5ced47b4c98d16646b59c5b4ab614b/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:86-145
+136
+137        <meta-data
+137-->[com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:9-122
+138            android:name="com.google.android.gms.version"
+138-->[com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:20-65
+139            android:value="@integer/google_play_services_version" />
+139-->[com.google.android.gms:play-services-basement:18.4.0] /home/sandbox/.gradle/caches/transforms-4/33cc6e73a79d6165042a034b991f9f50/transformed/play-services-basement-18.4.0/AndroidManifest.xml:6:66-119
+140    </application>
+141
+142</manifest>

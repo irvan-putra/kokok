@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.vanipy.kokok.SleepMonitoringTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-27T03:45:54" hostname="e2b.local" time="11.405">
+  <properties/>
+  <testcase name="sleepUiRendersSyntheticUnavailableAndEstimatedStates" classname="com.vanipy.kokok.SleepMonitoringTest" time="3.57"/>
+  <testcase name="offByDefaultAndNotInAlarmStore" classname="com.vanipy.kokok.SleepMonitoringTest" time="0.021"/>
+  <testcase name="orderedClassificationsOnlyAndNoStageClaim" classname="com.vanipy.kokok.SleepMonitoringTest" time="0.016"/>
+  <testcase name="actualCredentialProtectedCustodyPreservedWithoutMigration" classname="com.vanipy.kokok.SleepMonitoringTest" time="0.03"/>
+  <testcase name="ignoresLateCallbacksAfterStopAndClearPreservesAlarms" classname="com.vanipy.kokok.SleepMonitoringTest" time="0.084"/>
+  <testcase name="olderDevicesKeepAlarmsWithoutSleepProvider[26]" classname="com.vanipy.kokok.SleepMonitoringTest" time="3.462"/>
+  <testcase name="olderDevicesKeepAlarmsWithoutSleepProvider" classname="com.vanipy.kokok.SleepMonitoringTest" time="4.083"/>
+  <testcase name="unavailableIsNeverZeroSleepAndBadBoundsIgnored" classname="com.vanipy.kokok.SleepMonitoringTest" time="0.032"/>
+  <testcase name="deduplicatesPriorDayAndRetainsThirtyWindows" classname="com.vanipy.kokok.SleepMonitoringTest" time="0.107"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

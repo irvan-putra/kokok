@@ -27,6 +27,7 @@ public final class FeedModel {
     public static final class Feed {
         public int rev;
         public final List<Alarm> alarms = new ArrayList<>();
+        public final List<ReminderModel.Reminder> reminders = new ArrayList<>();
     }
 
     public static Feed parse(String json) throws org.json.JSONException {
@@ -45,6 +46,13 @@ public final class FeedModel {
                         a.optString("label", ""),
                         a.getLong("atMillis"),
                         a.optInt("snooze", 9)));
+            }
+        }
+        // optional; older app versions simply never see this field
+        JSONArray rem = doc.optJSONArray("reminders");
+        if (rem != null) {
+            for (int i = 0; i < rem.length(); i++) {
+                f.reminders.add(ReminderModel.parseReminder(rem.getJSONObject(i)));
             }
         }
         return f;

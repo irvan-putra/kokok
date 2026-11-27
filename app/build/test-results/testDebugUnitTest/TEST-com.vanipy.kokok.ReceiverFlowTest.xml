@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.vanipy.kokok.ReceiverFlowTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-27T03:45:54" hostname="e2b.local" time="0.156">
+  <properties/>
+  <testcase name="cancelOrderingAbsenceCancels" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.027"/>
+  <testcase name="updateAfterFiredDoesNotReschedule" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.016"/>
+  <testcase name="rebootRescheduleRingsLateAlarms" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.033"/>
+  <testcase name="repeatingIdAfterFiredStaysSilent" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.021"/>
+  <testcase name="timeChangeUsesFreshClockNotStoredTimes" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.022"/>
+  <testcase name="scheduledThenFiredThenDismissed" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.036"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
