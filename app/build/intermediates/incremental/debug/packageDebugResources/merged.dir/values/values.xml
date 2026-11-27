@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="ic_launcher_background">#101828</color>
-    <string name="app_name">kokok</string>
-    <style name="Theme.Kokok" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@android:color/white</item>
-    </style>
-</resources>

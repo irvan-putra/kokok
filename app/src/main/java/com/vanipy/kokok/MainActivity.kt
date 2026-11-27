@@ -251,6 +251,22 @@ class MainActivity : Activity() {
             })
         }
 
+        root.addView(button("Sync Alarms & Reminders", topPad = 24) {
+            Thread {
+                try {
+                    Sync.fetchAndApply(this)
+                    runOnUiThread { render() }
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        Toast.makeText(this, "sync failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        render()
+                    }
+                }
+            }.start()
+        })
+        val lastSync = if (lastSyncAt > 0) df.format(Date(lastSyncAt)) else "never"
+        root.addView(text("last sync: $lastSync \u2014 $lastSyncStatus", 14f, Color.GRAY))
+
         root.addView(text("alarms", 20f, Color.BLACK, bold = true, topPad = 32))
         val stored = FeedStore.alarms(this).values.sortedBy { it.atMillis }
         val history = stored.filter { AlarmListGrouping.isHistory(it.status) }
@@ -277,24 +293,6 @@ class MainActivity : Activity() {
             }
         }
 
-        root.addView(button("sync now", topPad = 24) {
-            Thread {
-                try {
-                    Sync.fetchAndApply(this)
-                    runOnUiThread { render() }
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        Toast.makeText(this, "sync failed: ${e.message}", Toast.LENGTH_LONG).show()
-                        render()
-                    }
-                }
-            }.start()
-        })
-        val lastSync = if (lastSyncAt > 0) df.format(Date(lastSyncAt)) else "never"
-        root.addView(text("last sync: $lastSync \u2014 $lastSyncStatus", 14f, Color.GRAY))
-
-        renderReminders()
-
         root.addView(button("test alarm (rings in 60 s)", topPad = 24) {
             val id = "local-${System.currentTimeMillis()}"
             val at = System.currentTimeMillis() + 60_000
@@ -305,6 +303,10 @@ class MainActivity : Activity() {
             Toast.makeText(this, "test alarm set for one minute from now", Toast.LENGTH_LONG).show()
             render()
         })
+
+
+        renderReminders()
+
 
         root.addView(text("alarm sound", 20f, Color.BLACK, bold = true, topPad = 24))
         root.addView(text(AlarmSound.label(this), 16f, Color.DKGRAY).apply { tag = "alarm-sound-label" })

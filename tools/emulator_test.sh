@@ -60,7 +60,7 @@ PYSEED
 adb shell am start -n com.vanipy.kokok/.MainActivity
 sleep 5
 adb exec-out screencap -p > main.png
-python3 tools/uitap.py "sync now"
+python3 tools/uitap.py "Sync Alarms & Reminders"
 sleep 8
 python3 tools/assert_feed_state.py 1 present
 adb shell dumpsys alarm > full-feed-scheduled.txt
@@ -70,7 +70,7 @@ adb exec-out screencap -p > after-sync.png
 
 # --- rev 2 without the alarm: absence cancellation at OS level ---
 cp feed/envelope2.json feed/live.json
-python3 tools/uitap.py "sync now"
+python3 tools/uitap.py "Sync Alarms & Reminders"
 sleep 8
 python3 tools/assert_feed_state.py 2 absent
 adb shell dumpsys alarm > full-feed-canceled.txt

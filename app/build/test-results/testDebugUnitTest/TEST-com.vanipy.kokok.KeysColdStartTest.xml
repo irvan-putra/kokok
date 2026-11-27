@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.vanipy.kokok.KeysColdStartTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-27T03:45:53" hostname="e2b.local" time="0.374">
+<testsuite name="com.vanipy.kokok.KeysColdStartTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-27T04:35:17" hostname="e2b.local" time="0.427">
   <properties/>
-  <testcase name="firstCryptoActionExportsOnlyPublicKeyAndKeepsItAcrossReopen" classname="com.vanipy.kokok.KeysColdStartTest" time="0.23"/>
-  <testcase name="unreadableExistingKeyDoesNotCrashRenderOrReplacePrivateState" classname="com.vanipy.kokok.KeysColdStartTest" time="0.144"/>
+  <testcase name="firstCryptoActionExportsOnlyPublicKeyAndKeepsItAcrossReopen" classname="com.vanipy.kokok.KeysColdStartTest" time="0.244"/>
+  <testcase name="unreadableExistingKeyDoesNotCrashRenderOrReplacePrivateState" classname="com.vanipy.kokok.KeysColdStartTest" time="0.183"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

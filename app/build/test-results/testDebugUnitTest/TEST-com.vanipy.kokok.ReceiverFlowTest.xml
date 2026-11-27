@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.vanipy.kokok.ReceiverFlowTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-27T03:45:54" hostname="e2b.local" time="0.156">
+<testsuite name="com.vanipy.kokok.ReceiverFlowTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-27T04:35:18" hostname="e2b.local" time="0.18">
   <properties/>
-  <testcase name="cancelOrderingAbsenceCancels" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.027"/>
-  <testcase name="updateAfterFiredDoesNotReschedule" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.016"/>
-  <testcase name="rebootRescheduleRingsLateAlarms" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.033"/>
-  <testcase name="repeatingIdAfterFiredStaysSilent" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.021"/>
-  <testcase name="timeChangeUsesFreshClockNotStoredTimes" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.022"/>
-  <testcase name="scheduledThenFiredThenDismissed" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.036"/>
+  <testcase name="cancelOrderingAbsenceCancels" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.042"/>
+  <testcase name="updateAfterFiredDoesNotReschedule" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.027"/>
+  <testcase name="rebootRescheduleRingsLateAlarms" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.04"/>
+  <testcase name="repeatingIdAfterFiredStaysSilent" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.014"/>
+  <testcase name="timeChangeUsesFreshClockNotStoredTimes" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.031"/>
+  <testcase name="scheduledThenFiredThenDismissed" classname="com.vanipy.kokok.ReceiverFlowTest" time="0.024"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

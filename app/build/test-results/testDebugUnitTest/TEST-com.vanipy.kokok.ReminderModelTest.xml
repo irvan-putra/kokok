@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.vanipy.kokok.ReminderModelTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-11-27T03:46:09" hostname="e2b.local" time="0.14">
+<testsuite name="com.vanipy.kokok.ReminderModelTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-11-27T04:35:31" hostname="e2b.local" time="0.171">
   <properties/>
-  <testcase name="parsesRemindersFromFeed" classname="com.vanipy.kokok.ReminderModelTest" time="0.016"/>
-  <testcase name="weekdayFilterSkipsOtherDays" classname="com.vanipy.kokok.ReminderModelTest" time="0.015"/>
-  <testcase name="firesLaterToday" classname="com.vanipy.kokok.ReminderModelTest" time="0.017"/>
-  <testcase name="yesterdayAwaitingDoesNotBlockToday" classname="com.vanipy.kokok.ReminderModelTest" time="0.011"/>
-  <testcase name="lateTodayFiresImmediately" classname="com.vanipy.kokok.ReminderModelTest" time="0.011"/>
-  <testcase name="awaitingWithSnoozeFiresAtSnoozeTime" classname="com.vanipy.kokok.ReminderModelTest" time="0.011"/>
-  <testcase name="feedWithoutRemindersParsesEmpty" classname="com.vanipy.kokok.ReminderModelTest" time="0.011"/>
-  <testcase name="invalidReminderRejectsWholeFeed" classname="com.vanipy.kokok.ReminderModelTest" time="0.009"/>
-  <testcase name="awaitingWithoutSnoozeWaitsForUser" classname="com.vanipy.kokok.ReminderModelTest" time="0.009"/>
-  <testcase name="sameAsDetectsChanges" classname="com.vanipy.kokok.ReminderModelTest" time="0.009"/>
-  <testcase name="doneTodaySkipsToTomorrow" classname="com.vanipy.kokok.ReminderModelTest" time="0.009"/>
-  <testcase name="defaultsAreDailyWithSixtyMinuteAgain" classname="com.vanipy.kokok.ReminderModelTest" time="0.011"/>
+  <testcase name="parsesRemindersFromFeed" classname="com.vanipy.kokok.ReminderModelTest" time="0.015"/>
+  <testcase name="weekdayFilterSkipsOtherDays" classname="com.vanipy.kokok.ReminderModelTest" time="0.013"/>
+  <testcase name="firesLaterToday" classname="com.vanipy.kokok.ReminderModelTest" time="0.01"/>
+  <testcase name="yesterdayAwaitingDoesNotBlockToday" classname="com.vanipy.kokok.ReminderModelTest" time="0.013"/>
+  <testcase name="lateTodayFiresImmediately" classname="com.vanipy.kokok.ReminderModelTest" time="0.02"/>
+  <testcase name="awaitingWithSnoozeFiresAtSnoozeTime" classname="com.vanipy.kokok.ReminderModelTest" time="0.024"/>
+  <testcase name="feedWithoutRemindersParsesEmpty" classname="com.vanipy.kokok.ReminderModelTest" time="0.014"/>
+  <testcase name="invalidReminderRejectsWholeFeed" classname="com.vanipy.kokok.ReminderModelTest" time="0.019"/>
+  <testcase name="awaitingWithoutSnoozeWaitsForUser" classname="com.vanipy.kokok.ReminderModelTest" time="0.012"/>
+  <testcase name="sameAsDetectsChanges" classname="com.vanipy.kokok.ReminderModelTest" time="0.01"/>
+  <testcase name="doneTodaySkipsToTomorrow" classname="com.vanipy.kokok.ReminderModelTest" time="0.011"/>
+  <testcase name="defaultsAreDailyWithSixtyMinuteAgain" classname="com.vanipy.kokok.ReminderModelTest" time="0.01"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
